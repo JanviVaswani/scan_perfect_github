@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <TextView
+        android:id="@+id/lblTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="@string/scan_freight"
+        android:textSize="30sp"
+        android:textStyle="bold" />
+
+   <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+       android:id="@+id/rBtnG"
+       android:layout_width="fill_parent"
+       android:layout_height="wrap_content"
+       android:gravity="center"
+       >
+        <RadioButton android:id="@+id/rBtnFromHub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/from_hub"
+            android:width="200sp" android:onClick="onRadioButtonClicked"/>
+        <RadioButton android:id="@+id/rBtnToHub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/to_hub"
+            android:width="200sp" android:onClick="onRadioButtonClicked"/>
+        <RadioButton android:id="@+id/rBtnOntoDelivery"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onto_delivery"
+            android:width="200sp" android:onClick="onRadioButtonClicked"/>
+    </RadioGroup>
+    <View
+        android:id="@+id/view"
+        android:layout_width="0dp"
+        android:layout_height="10dp"
+        />
+    <Spinner
+        android:id="@+id/spnTrunk"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textSize="30sp"
+        />
+    <EditText
+        android:id="@+id/txtManifestDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:inputType="none"
+        android:hint="@string/manifestDate"/>
+    <include layout="@layout/wizardbuttons"/>
+</LinearLayout>

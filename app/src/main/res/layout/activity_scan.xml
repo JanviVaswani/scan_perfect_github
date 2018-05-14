@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <View
+        android:id="@+id/view"
+        android:layout_width="0dp"
+        android:layout_height="4dp"
+        />
+
+    <TextView
+        android:id="@+id/lblTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="@string/title"
+        android:textSize="30sp"
+        android:textStyle="bold" />
+
+    <com.journeyapps.barcodescanner.DecoratedBarcodeView
+        android:id="@+id/barcode_scanner"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_above="@+id/wizardLayout"
+        android:layout_below="@id/lblTitle">
+    </com.journeyapps.barcodescanner.DecoratedBarcodeView>
+    <TextView
+        android:id="@+id/lblScanTrunk"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="left"
+        android:textColor="@color/white"
+        android:textSize="30sp"
+        android:layout_alignTop="@id/barcode_scanner" />
+    <TextView
+        android:id="@+id/lblScanDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="right"
+        android:textColor="@color/white"
+        android:textSize="30sp"
+        android:layout_alignTop="@id/barcode_scanner" />
+    <TextView
+        android:id="@+id/lblScan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="right"
+        android:textColor="@color/white"
+        android:layout_alignBottom="@id/barcode_scanner" />
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/wizardLayout">
+        <View
+            android:id="@+id/view1"
+            android:layout_width="0dp"
+            android:layout_height="4dp"
+            />
+        <Spinner
+            android:id="@+id/spnClause"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textSize="30sp" />
+        <include layout="@layout/wizardbuttons" />
+
+    </LinearLayout>
+
+</RelativeLayout>

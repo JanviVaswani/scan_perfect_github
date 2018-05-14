@@ -1,0 +1,44 @@
+<resources>
+    <string name="app_name">ScanSist™</string>
+    <string name="scan">Scan Barcode</string>
+    <string name="turn_on_flashlight">Flash On</string>
+    <string name="turn_off_flashlight">Flash Off</string>
+    <string name="action_back">Back</string>
+    <string name="action_home">Home</string>
+    <string name="action_camera">Camera</string>
+    <string name="action_flash">Flash</string>
+    <string name="action_settings">Settings</string>
+    <string name="menu_about">About</string>
+    <string name="title">Title</string>
+    <string name="manifestDate">Manifest Date (DD/MM/YYYY)</string>
+    <string name="scan_freight">Scan Freight</string>
+    <string name="scan_pause">Pause</string>
+    <string name="scan_resume">Resume</string>
+    <!-- Scan Menu-->
+    <string name="from_hub">From Hub</string>
+    <string name="from_hub_direction">X</string>
+    <string name="from_hub_status">DSI</string>
+
+    <string name="to_hub">To Hub</string>
+    <string name="to_hub_direction">T</string>
+    <string name="to_hub_status">DSO</string>
+
+    <string name="onto_delivery">Onto Delivery Vehicle</string>
+    <string name="onto_delivery_direction">D</string>
+    <string name="onto_delivery_status">SCDV</string>
+
+    <string name="action_barcode">Scan</string>
+    <!-- Wizard Buttons -->
+    <string name="previous">Previous</string>
+    <string name="next">Next</string>
+    <string name="cancel">Cancel</string>
+    <!-- Dialogue Buttons -->
+    <string name="confirm_exit">Confirm ScanSist™ Exit</string>
+    <string name="confirm_cancel">Confirm ScanSist™ Cancel</string>
+    <string name="confirm_finish">Confirm ScanSist™ Finish</string>
+    <string name="confirm_message_exit">Are you sure you want to exit the app?</string>
+    <string name="confirm_message_cancel">Are you sure you want to cancel the app?</string>
+    <string name="confirm_message_finish">Are you sure you want to finish?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+</resources>

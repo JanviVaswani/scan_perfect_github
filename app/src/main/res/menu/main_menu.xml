@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <item
+    android:id="@+id/action_home"
+    android:icon="@drawable/homeicon"
+    android:title="@string/action_home"
+    android:showAsAction="always|withText"/>
+
+  <item
+    android:id="@+id/action_barcode"
+    android:icon="@drawable/barcodeicon"
+    android:title="@string/scan_pause"
+    android:showAsAction="always|withText"/>
+
+  <!-- "Mark Favorite", should appear as action button if possible -->
+  <item
+    android:id="@+id/action_flash"
+    android:icon="@drawable/flashoff"
+    android:title="@string/turn_on_flashlight"
+    android:showAsAction="always|withText"/>
+
+  <!-- Settings, should always be in the overflow -->
+  <item android:id="@+id/action_settings"
+    android:title="@string/action_settings"
+    android:showAsAction="never"/>
+
+  <item
+    android:id="@+id/action_about"
+    android:title="@string/menu_about"
+    android:showAsAction="never" />
+
+</menu>
+
