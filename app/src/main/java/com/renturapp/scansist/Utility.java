@@ -123,14 +123,30 @@ public class Utility extends Application {
         }
         if (!scans.isEmpty()) {
           if (f){
-              message = "Upload " + scanAdapter.getCount() + " Scanned Job" + (scanAdapter.getCount() > 1 ? "s" : "") + ":\n\n";
-              for (Scan s : scans) {
-                  message += "i" + s.scanID + " " + s.clauseCode + " " + s.scanBarCode + "\n";
+            int d = 0;
+            for (Scan s : scans) {
+              if (s.clauseID>0){
+                d++;
               }
+            }
+            if (d>0) {
+              message = "Upload " + scanAdapter.getCount() + " Scanned Job" + (scanAdapter.getCount() > 1 ? "s" : "") + "\n"
+              + d +" Damaged:\n\n";
+            } else {
+              message = "Upload " + scanAdapter.getCount() + " Scanned Job" + (scanAdapter.getCount() > 1 ? "s" : "") + ":\n\n";
+            }
+
+            for (Scan s : scans) {
+              message += "i" + s.scanID + s.scanBarCode + " " + s.clauseCode + " " +"\n";
+            }
           } else {
             message = "Cancel the ScanSist™ App?\n\nClear " + scanAdapter.getCount() + " Scanned Job" + (scanAdapter.getCount() > 1 ? "s" : "") + ":\n\n";
             for (Scan s : scans) {
-              message += "i" + s.scanID + " " + s.scanBarCode + "\n";
+                if (s.clauseID>0) {
+                  message += "i" + s.scanID + " " + s.scanBarCode + " " + s.clauseCode + " " + "\n";
+                } else {
+                  message += "i" + s.scanID + " " + s.scanBarCode + "               " + "\n";
+                }
             }
 
           }
@@ -168,10 +184,16 @@ public class Utility extends Application {
 
         builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
 
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
+            dialog.dismiss();
+            try {
+              View vb = ((ScanActivity) c).findViewById(R.id.barcode_scanner);
+              ((ScanActivity) c).resume(vb);
+            } catch (Exception e) {
+              e.printStackTrace();
             }
+          }
         });
 
         final AlertDialog dialog = builder.create();

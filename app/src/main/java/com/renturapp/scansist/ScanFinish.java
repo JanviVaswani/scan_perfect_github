@@ -5,22 +5,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
-
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.zxing.ResultPoint;
 import com.google.zxing.client.android.BeepManager;
@@ -29,29 +25,19 @@ import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 import com.squareup.otto.Subscribe;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class ScanActivity extends Activity implements
-        DecoratedBarcodeView.TorchListener {
+public class ScanFinish extends Activity {
 
   //public MenuItem mFlash;
   //public MenuItem mBarCode;
   private Utility u;
 
-  private static final String TAG = ScanActivity.class.getSimpleName();
-  private DecoratedBarcodeView barcodeView;
-  private BeepManager beepManager;
-  private String lastText;
-  private TextView lblScan;
+  private static final String TAG = ScanFinish.class.getSimpleName();
+
 
   private Boolean initClause;
   private Spinner spnClause;
@@ -62,82 +48,6 @@ public class ScanActivity extends Activity implements
 
   private String mTrunk,mManifestDate,mDirection,mStatus;
 
-  private BarcodeCallback callback = new BarcodeCallback() {
-    @Override
-    public void barcodeResult(BarcodeResult result) {
-
-      if (result.getText() == null) {
-        // Prevent nulls
-        return;
-      }
-      if (result.getText().equals(lastText)) {
-        // Prevent duplicate scans
-        if (scanCount == 1) {
-          beepManager.playBeepSoundAndVibrate();
-        }
-        scanCount++;
-        updateScanInfo(scanCount);
-        return;
-      } else {
-        lastText = result.getText();
-        if (lastText.length() == 15) {
-          Spinner cs = (Spinner)findViewById(R.id.spnClause);
-          cs.getSelectedView().setEnabled(true);
-          cs.setEnabled(true);
-          cs.setAlpha(1f);
-          setNextFinish(true);
-          //hh 12hour format - HH 24 hr format
-          SimpleDateFormat scan_sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.UK);
-          String scanDateTime = scan_sdf.format(new Date());
-
-          if (u.scanAdapter.getCount() == 0) {
-            beepManager.playBeepSoundAndVibrate();
-            u.scans.add(new Scan(1, 0, "    ", lastText, scanDateTime));
-            u.scanAdapter.notifyDataSetChanged();
-            scanCount = 0;
-            updateScanInfo(scanCount);
-          } else {
-            //has it already been scaned!
-            boolean alreadyScanned = false;
-            for (Scan s : u.scans) {
-              if (s.scanBarCode.equals(lastText)) {
-                alreadyScanned = true;
-                setSpnClause(s.clauseID);
-                barcodeView.setStatusText(result.getText());
-                break;
-              }
-            }
-            if (alreadyScanned) {
-              //title.setTextColor(Color.RED);
-              scanCount = 0;
-              updateScanInfo(scanCount);
-              u.displayMessage(context,"ScanSist™\nBarcode [" + result.getText() + "]\nAlready Scanned!");
-              return;
-            } else {
-              beepManager.playBeepSoundAndVibrate();
-              //title.setTextColor(Color.BLACK);
-              setSpnClause(0);
-              u.scans.add(new Scan(u.scans.size()+1, 0, "    ", lastText, scanDateTime));
-              u.scanAdapter.notifyDataSetChanged();
-              scanCount = 0;
-              updateScanInfo(scanCount);
-              u.sortScans();
-            }
-          }
-        } else {
-          beepManager.playBeepSoundAndVibrate();
-          u.displayMessage(context, "ScanSist™\nBarcode [" + result.getText() + "]\nInvalid!");
-        }
-        barcodeView.setStatusText(result.getText());
-        //Added preview of scanned barcodeicon
-        //ImageView imageView = (ImageView) findViewById(R.id.barcodePreview);
-        //imageView.setImageBitmap(result.getBitmapWithResultPoints(Color.YELLOW));
-      }
-    }
-    @Override
-    public void possibleResultPoints(List<ResultPoint> resultPoints) {
-    }
-  };
   private void setNextFinish(Boolean enabled){
     if(enabled) {
       btnNext.setClickable(true);
@@ -156,15 +66,12 @@ public class ScanActivity extends Activity implements
       }
     }
   }
-  private void updateScanInfo(int s) {
-    lblScan.setText(Integer.toString(s) + " Scans");
-  }
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     this.setContentView(R.layout.activity_scan);
 
-    context = ScanActivity.this;
+    context = ScanFinish.this;
 
     MyAsyncBus.getInstance().register(this);
 
@@ -172,7 +79,7 @@ public class ScanActivity extends Activity implements
 
     btnNext = (Button)findViewById(R.id.btnNext);
     btnNext.setText("Finish");
-    lblScan = (TextView)findViewById(R.id.lblScan);
+    //lblScan = (TextView)findViewById(R.id.lblScan);
     scanCount = 0;
     // Create object of SharedPreferences.
     SharedPreferences sharedPref= getApplicationContext().getSharedPreferences("ScanSist",MODE_PRIVATE);
@@ -224,48 +131,10 @@ public class ScanActivity extends Activity implements
     } else {
       setNextFinish(false);
     }
+    ListView lv = (ListView)findViewById(R.id.scanList);
 
-    spnClause= (Spinner) findViewById(R.id.spnClause);
-    spnClause.setVisibility(View.VISIBLE);
-    spnClause.setAdapter(u.clauseAdapter);
-    initClause = true;//stop initialisation firing
-    spnClause.setOnItemSelectedListener(
-            new AdapterView.OnItemSelectedListener() {
-              @Override
-              public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                //setBtnNextEnable();
-                if (!initClause) {
-                  Clause c = (Clause) u.clauseAdapter.getItem(position);
-                  for (Scan s : u.scans) {
-                    if (s.scanBarCode.equals(lastText) && s.clauseID != c.clauseID) {
-                      s.clauseID = c.clauseID;
-                      s.clauseCode = c.clauseCode;
-                      u.scanAdapter.notifyDataSetChanged();
-                      u.displayMessage(context, "ScanSist™\nBarcode [" + lastText + "]\nClaused - " + c.clauseDescription);
-                      break;
-                    }
-                  }
-                } else {
-                  initClause = false;
-                }
-              }
-              @Override
-              public void onNothingSelected(AdapterView<?> arg0) {
+    lv.setAdapter(u.scanAdapter);
 
-              }
-
-            });
-    spnClause.setEnabled(false);
-    spnClause.setEnabled(false);
-    spnClause.setAlpha(0.5f);
-    barcodeView = (DecoratedBarcodeView) findViewById(R.id.barcode_scanner);
-    //Collection<BarcodeFormat> formats = Arrays.asList(BarcodeFormat.QR_CODE, BarcodeFormat.CODE_39);
-    //barcodeView.getBarcodeView().setDecoderFactory(new DefaultDecoderFactory(formats));
-    barcodeView.decodeContinuous(callback);
-
-    beepManager = new BeepManager(this);
-
-    barcodeView.setTorchListener(this);
   }
   private void setTitleCode(int status){
     TextView t = (TextView)findViewById(R.id.lblTitle);
@@ -328,8 +197,6 @@ public class ScanActivity extends Activity implements
     } else {
       u.displayMessage(context, "Upload Successfully Completed.");
     }
-    View vb = findViewById(R.id.barcode_scanner);
-    resume(vb);
   }
   private void setScanDate(String d) {
     try{
@@ -351,62 +218,12 @@ public class ScanActivity extends Activity implements
             WindowManager.LayoutParams.FLAG_FULLSCREEN);
   }
 
-  @Override
-  protected void onResume() {
-    super.onResume();
-    barcodeView.resume();
-  }
-
-  @Override
-  protected void onPause() {
-    super.onPause();
-    barcodeView.pause();
-  }
-
-  public void pause(View view) {
-    barcodeView.pause();
-  }
-
-  public void resume(View view) {
-    barcodeView.resume();
-  }
-
-  public void triggerScan(View view) {
-    barcodeView.decodeSingle(callback);
-  }
-
-  @Override
-  public boolean onKeyDown(int keyCode, KeyEvent event) {
-    return barcodeView.onKeyDown(keyCode, event) || super.onKeyDown(keyCode, event);
-  }
-
   /**
    * Check if the device's camera has a Flashlight.
    * @return true if there is Flashlight, otherwise false.
    */
-  private boolean hasFlash() {
-    return getApplicationContext().getPackageManager()
-            .hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
-  }
-
-  @Override
-  public void onTorchOff() {
-    MenuItem f = u.getFlash();
-    f.setIcon(R.drawable.flashoff);
-    f.setTitle(getString(R.string.turn_on_flashlight));
-  }
-
-  @Override
-  public void onTorchOn() {
-    MenuItem f = u.getFlash();
-    f.setIcon(R.drawable.flashon);
-    f.setTitle(R.string.turn_off_flashlight);
-  }
-
   public void onWizardButtonClicked(View v) {
     // Check which radio button was clicked
-    View vb = findViewById(R.id.barcode_scanner);
-    pause(vb);
     switch(v.getId()) {
       case R.id.btnPrevious:
         onBackPressed();
@@ -430,8 +247,8 @@ public class ScanActivity extends Activity implements
     u.setFlash(menu.findItem(R.id.action_flash));
 
     u.changeMenuItemState(u.getHome(),true,true,true);
-    u.changeMenuItemState(u.getBarCode(),true,true,true);
-    u.changeMenuItemState(u.getFlash(),true,hasFlash(),true);
+    u.changeMenuItemState(u.getBarCode(),false,false,false);
+    u.changeMenuItemState(u.getFlash(),false,false,false);
 
     return true;
   }
@@ -461,25 +278,12 @@ public class ScanActivity extends Activity implements
         return true;
       case R.id.action_barcode:
 
-        View v = findViewById(R.id.barcode_scanner);
-        if (b.getTitle().equals(getString(R.string.scan_resume))) {
-          b.setTitle(R.string.scan_pause);
-          u.changeMenuItemState(b,true,true ,true);
-          resume(v);
-        } else {
-          b.setTitle(R.string.scan_resume);
-          u.changeMenuItemState(b,true,true ,false);
-          pause(v);
-        }
+        //Not visible
 
         return true;
       case R.id.action_flash:
 
-        if (f.getTitle().equals(getString(R.string.turn_on_flashlight))) {
-          barcodeView.setTorchOn();
-        } else {
-          barcodeView.setTorchOff();
-        }
+        //Not visible
 
         return true;
       default:
@@ -495,7 +299,7 @@ public class ScanActivity extends Activity implements
     Bundle bundle = new Bundle();
     bundle.putBoolean("onBackPressed",true);
     // Put your own code here which you want to run on back button click.
-    Intent previousScreen = new Intent(ScanActivity.this,MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    Intent previousScreen = new Intent(ScanFinish.this,MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
     previousScreen.putExtras(bundle);
     startActivity(previousScreen);
     finish();
