@@ -37,6 +37,10 @@ import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -626,21 +630,48 @@ public class MainActivity extends Activity {
 
   @Subscribe
   public void onRegisterScanSistTaskResultEvent(RegisterScanSistTaskResultEvent event) {
-
-    //SharedPreferences sharedPref= getApplicationContext().getSharedPreferences("ScanSist",MODE_PRIVATE);
-    //sharedPref.edit().putString("RegKey", deviceUu).apply();
     //Must use the default preference file!
-    PreferenceManager.getDefaultSharedPreferences(context).edit().putString("RegKey", deviceUu).apply();
-
+    //PreferenceManager.getDefaultSharedPreferences(context).edit().putString("RegKey", deviceUu).apply();
     delaydialogueClose(false);
-    if (!event.getResult()) {
-      u.displayMessage(context, "Registration Completed\n\n" + "Warning - ScanSist™ not added to MoveSist™ database");
-    } else {
+    if (event.getResult()) {
       u.displayMessage(context, "Registration Completed");
+    } else {
+      u.displayMessage(context, "Registration Completed\n\n" + "Warning - ScanSist™ not added to MoveSist™ database");
       //inhibitLocationUpdates = false;
     }
     //licence ok so download data
-    ////////// to do ////////////new DownloadDataTask().execute(downloaddata);
+    new DownloadDataTask().execute("http://www.movesist.com/data/scansists/?CompanyID=" + mCompanyID +"&getType=3&AndroidId=" + androidId);
+  }
+  @Subscribe
+  public void onDownloadTaskResultEvent(DownloadDataTaskResultEvent event) {
+    delaydialogueClose(false);
+    if (event.getResult() != null) {
+      SharedPreferences dp = PreferenceManager.getDefaultSharedPreferences(context);
+      //now get the Editor
+      SharedPreferences.Editor editor = dp.edit();
+      String depotNumber = "";
+      int scanSistCode = 0;
+      try {
+        JSONArray data_array = new JSONArray(event.getResult());
+        for (int i = 0; i < data_array.length(); i++) {
+          JSONObject obj = new JSONObject(data_array.get(i).toString());
+          depotNumber = obj.getString("DepotNumber");
+          scanSistCode = obj.getInt("ScanSistCode");
+          break;
+        }
+        editor.putString("RegKey", deviceUu);
+        editor.putString("DepotNumber", depotNumber);
+        editor.putInt("ScanSistCode", scanSistCode);
+        //was added in 2.3, it commits without returning a boolean indicating success or failure
+        editor.apply();
+        u.displayMessage(context, "ScanSist™ Registration Information Saved.");
+      } catch (JSONException e) {
+        e.printStackTrace();
+        u.displayMessage(context, "Warning - No ScanSist™ Registration Data Available.");
+      }
+    } else {
+      u.displayMessage(context, "Warning - No ScanSist™ Registration Data Available.");
+    }
   }
   private TextView setProgressTitle (String t){
     // Create a TextView programmatically.

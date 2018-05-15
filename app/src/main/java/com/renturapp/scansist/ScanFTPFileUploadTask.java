@@ -15,14 +15,17 @@ import java.net.InetAddress;
  * Default Template
  */
 class ScanFTPFileUploadTask extends AsyncTask<String, Void, Boolean> {
-    //0 - Domain (Url)
-    //1 - Username
-    //2 - Password
-    //3 - JSon Scans String
-    //4 - Filename
-    //5 - Direction
-    //6 - Status
-    //7 - Trunk
+  //0  - Domain (Url)
+  //1  - Username
+  //2  - Password
+  //3  - JSon Scans String
+  //4  - Filename
+  //5  - Direction
+  //6  - Status
+  //7  - Trunk
+  //8  - ManifestDate
+  //9  - DepotNumber
+  //10 - ScanSistCode
     @Override
     protected Boolean doInBackground(String... params) {
         Boolean result = false;
@@ -48,12 +51,12 @@ class ScanFTPFileUploadTask extends AsyncTask<String, Void, Boolean> {
                         data+="   <Barcode>" + s.getString("scanBarCode")+"</Barcode>\n";
                         data+="   <StatusCode>" + params[6]  + "</StatusCode>\n";
                         data+="   <StatusDate>" + s.getString("scanDateTime") + "</StatusDate>\n";
-                        data+="   <User>" + "099" + "</User>\n";
-                        data+="   <Device>" + "099-1" + "</Device>\n";
+                        data+="   <User>" +  params[9] + "</User>\n";
+                        data+="   <Device>" +  params[9] + "-" + params[10] + "</Device>\n";
                         data+="   <Note/>\n";
                         data+="   <Manifest>\n";
                         data+="    <ManifestNo></ManifestNo>\n";
-                        data+="    <Depot>099</Depot>\n";
+                        data+="    <Depot>" + params[9] + "</Depot>\n";
                         data+="    <Trunk>" + params[7] + "</Trunk>\n";
                         data+="    <ManifestDate>" + params[8] + "</ManifestDate>\n";
                         data+="    <Direction>" + params[5] + "</Direction>\n";
@@ -63,17 +66,10 @@ class ScanFTPFileUploadTask extends AsyncTask<String, Void, Boolean> {
                         data+="   <Barcode>"    + s.getString("scanBarCode")  + "</Barcode>\n";
                         data+="   <StatusCode>" + s.getString("clauseCode")   + "</StatusCode>\n";
                         data+="   <StatusDate>" + s.getString("scanDateTime") + "</StatusDate>\n";
-                        data+="   <User>" + "099" + "</User>\n";
-                        data+="   <Device>" + "099-1" + "</Device>\n";
+                        data+="   <User>" + params[9] + "</User>\n";
+                        data+="   <Device>" + params[9] + "-" + params[10] + "</Device>\n";
                         data+="   <Note/>\n";
                     }
-                    /*scans.add(new Scan(
-                            s.getInt("scanID"),
-                            s.getInt("clauseID"),
-                            s.getString("clauseCode"),
-                            s.getString("scanBarCode"),
-                            s.getString("scanDateTime")));*/
-
                     data+="  </Status>\n";
                 }
 

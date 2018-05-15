@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -305,7 +306,12 @@ public class ScanActivity extends Activity implements
     SimpleDateFormat scan_sdf = new SimpleDateFormat("yyyy-MM-dd-HHmmss", Locale.UK);
     String uploadDateTime = scan_sdf.format(new Date());
 
-    String d = "/demo/users/scansist/Upload_099" + uploadDateTime +"001.xml";
+
+
+    String depotNumber   = PreferenceManager.getDefaultSharedPreferences(context).getString("DepotNumber", "NothingFound");
+    String scanSistCode =  String.valueOf(PreferenceManager.getDefaultSharedPreferences(context).getInt("ScanSistCode", 0));
+
+    String d = "/demo/users/scansist/Upload_" + depotNumber + uploadDateTime +"001.xml";
 
     new ScanFTPFileUploadTask().execute("www.movesist.com",
             "clients",
@@ -315,21 +321,33 @@ public class ScanActivity extends Activity implements
             mDirection,
             mStatus,
             mTrunk,
-            mManifestDate);
+            mManifestDate,
+            depotNumber,
+            scanSistCode);
 
   }
   @Subscribe
   public void onAsyncScanFTPFileUploadTaskResultEvent(ScanFTPFileUploadTaskResultEvent event) {
-
+    View vb = findViewById(R.id.barcode_scanner);
     if (!event.getResult()) {
       u.displayMessage(context, "Upload Failed.");
+
+      resume(vb);
       //onBackPressed();
       //return;Warning:(217, 13) 'return' is unnecessary as the last statement in a 'void' method
     } else {
       u.displayMessage(context, "Upload Successfully Completed.");
+      // Clear shared preferences
+      SharedPreferences sharedPref = context.getApplicationContext().getSharedPreferences("ScanSist", 0);
+      SharedPreferences.Editor editor = sharedPref.edit();
+      editor.clear();   //its clear all data.
+      editor.commit();  //Don't forgot to commit  SharedPreferences.
+      u.scans.clear();
+      u.scanAdapter.notifyDataSetChanged();
+      resume(vb);
+      onBackPressed();
     }
-    View vb = findViewById(R.id.barcode_scanner);
-    resume(vb);
+
   }
   private void setScanDate(String d) {
     try{
