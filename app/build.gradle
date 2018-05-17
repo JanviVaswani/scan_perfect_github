@@ -14,8 +14,10 @@ android {
     applicationId "com.renturapp.scansist"
     minSdkVersion 15
     targetSdkVersion 15
-    versionCode 1
-    versionName "1.0"
+    //2018-05-17 New Version 2 - 1.1 with corrections to upload file
+    //2018-05-17 New Version 3 - 1.2 "chmod 604 " + params[4]) removed
+    versionCode 3
+    versionName "1.2"
         //testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     signingConfig signingConfigs.config
   }

@@ -78,11 +78,6 @@ class ScanFTPFileUploadTask extends AsyncTask<String, Void, Boolean> {
                 ByteArrayInputStream in = new ByteArrayInputStream(data.toString().getBytes());
                 result = con.storeFile(params[4], in);
                 in.close();
-                if (result) {
-                    result = con.sendSiteCommand("chmod 604 " + params[4]);
-                }
-                // if (result)
-                // System.out.println("upload result: " + result);
             }
         } catch (Exception e) {
             e.printStackTrace();

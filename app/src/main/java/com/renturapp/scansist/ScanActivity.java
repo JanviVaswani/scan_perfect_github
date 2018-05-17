@@ -310,15 +310,13 @@ public class ScanActivity extends Activity implements
     String url      = "www.movesist.com";
     String username = "clients";
     String userpass = "wdrcv227qt";
-
+    String d = "/demo/users/scansist/Upload_" + depotNumber + "_" + uploadDateTime +"-001.xml";
     if (!depotNumber.equals("099")) {
       url      = "www.hazchemonline.com";
       username = "haz" + depotNumber;
       userpass = "haz" + depotNumber;
+      d = "Upload_" + depotNumber + "_" + uploadDateTime +"-001.xml";
     }
-
-    String d = "/demo/users/scansist/Upload_" + depotNumber + "_" + uploadDateTime +"-001.xml";
-
       new ScanFTPFileUploadTask().execute(url,
         username,
         userpass,

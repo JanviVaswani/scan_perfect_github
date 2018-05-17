@@ -134,15 +134,15 @@ public class Utility extends Application {
             }
 
             for (Scan s : scans) {
-              message.append("i").append(s.scanID).append(s.scanBarCode).append(" ").append(s.clauseCode).append(" ").append("\n");
+              message.append(s.scanBarCode).append(" ").append(s.clauseCode).append(" ").append("\n");
             }
           } else {
             message = new StringBuilder("Cancel the ScanSist™ App?\n\nClear " + scanAdapter.getCount() + " Scanned Job" + (scanAdapter.getCount() > 1 ? "s" : "") + ":\n\n");
             for (Scan s : scans) {
                 if (s.clauseID>0) {
-                  message.append("i").append(s.scanID).append(" ").append(s.scanBarCode).append(" ").append(s.clauseCode).append(" ").append("\n");
+                  message.append(s.scanBarCode).append(" ").append(s.clauseCode).append(" ").append("\n");
                 } else {
-                  message.append("i").append(s.scanID).append(" ").append(s.scanBarCode).append("               ").append("\n");
+                  message.append(s.scanBarCode).append("               ").append("\n");
                 }
             }
 
