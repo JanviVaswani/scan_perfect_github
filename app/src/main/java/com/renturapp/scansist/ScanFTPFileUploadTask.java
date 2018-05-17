@@ -40,42 +40,42 @@ class ScanFTPFileUploadTask extends AsyncTask<String, Void, Boolean> {
                 //Array Data
 
                 JSONArray sa = new JSONArray(params[3]);
-                String data = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                        +"<Uploads xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n"
-                        +" <Statuses>\n";
+                StringBuilder data = new StringBuilder("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+                    + "<Uploads xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n"
+                    + " <Statuses>\n");
                 for (int i=0; i<sa.length();i++){
                     JSONObject s = sa.getJSONObject(i);
-                    data+="  <Status>\n";
+                    data.append("  <Status>\n");
 
                     if(s.getInt("clauseID")==0) {
-                        data+="   <Barcode>" + s.getString("scanBarCode")+"</Barcode>\n";
-                        data+="   <StatusCode>" + params[6]  + "</StatusCode>\n";
-                        data+="   <StatusDate>" + s.getString("scanDateTime") + "</StatusDate>\n";
-                        data+="   <User>" +  params[9] + "</User>\n";
-                        data+="   <Device>" +  params[9] + "-" + params[10] + "</Device>\n";
-                        data+="   <Note/>\n";
-                        data+="   <Manifest>\n";
-                        data+="    <ManifestNo></ManifestNo>\n";
-                        data+="    <Depot>" + params[9] + "</Depot>\n";
-                        data+="    <Trunk>" + params[7] + "</Trunk>\n";
-                        data+="    <ManifestDate>" + params[8] + "</ManifestDate>\n";
-                        data+="    <Direction>" + params[5] + "</Direction>\n";
-                        data+="    <Downloaded></Downloaded>\n";
-                        data+="   </Manifest>\n";
+                        data.append("   <Barcode>").append(s.getString("scanBarCode")).append("</Barcode>\n");
+                        data.append("   <StatusCode>").append(params[6]).append("</StatusCode>\n");
+                        data.append("   <StatusDate>").append(s.getString("scanDateTime")).append("</StatusDate>\n");
+                        data.append("   <User>").append(params[9]).append("</User>\n");
+                        data.append("   <Device>").append(params[9]).append("-").append(params[10]).append("</Device>\n");
+                        data.append("   <Note/>\n");
+                        data.append("   <Manifest>\n");
+                        data.append("    <ManifestNo></ManifestNo>\n");
+                        data.append("    <Depot>").append(params[9]).append("</Depot>\n");
+                        data.append("    <Trunk>").append(params[7]).append("</Trunk>\n");
+                        data.append("    <ManifestDate>").append(params[8]).append("</ManifestDate>\n");
+                        data.append("    <Direction>").append(params[5]).append("</Direction>\n");
+                        data.append("    <Downloaded></Downloaded>\n");
+                        data.append("   </Manifest>\n");
                     } else {
-                        data+="   <Barcode>"    + s.getString("scanBarCode")  + "</Barcode>\n";
-                        data+="   <StatusCode>" + s.getString("clauseCode")   + "</StatusCode>\n";
-                        data+="   <StatusDate>" + s.getString("scanDateTime") + "</StatusDate>\n";
-                        data+="   <User>" + params[9] + "</User>\n";
-                        data+="   <Device>" + params[9] + "-" + params[10] + "</Device>\n";
-                        data+="   <Note/>\n";
+                        data.append("   <Barcode>").append(s.getString("scanBarCode")).append("</Barcode>\n");
+                        data.append("   <StatusCode>").append(s.getString("clauseCode")).append("</StatusCode>\n");
+                        data.append("   <StatusDate>").append(s.getString("scanDateTime")).append("</StatusDate>\n");
+                        data.append("   <User>").append(params[9]).append("</User>\n");
+                        data.append("   <Device>").append(params[9]).append("-").append(params[10]).append("</Device>\n");
+                        data.append("   <Note/>\n");
                     }
-                    data+="  </Status>\n";
+                    data.append("  </Status>\n");
                 }
 
-                data+=" </Statuses>\n";
-                data+="</Uploads>\n";
-                ByteArrayInputStream in = new ByteArrayInputStream(data.getBytes());
+                data.append(" </Statuses>\n");
+                data.append("</Uploads>\n");
+                ByteArrayInputStream in = new ByteArrayInputStream(data.toString().getBytes());
                 result = con.storeFile(params[4], in);
                 in.close();
                 if (result) {

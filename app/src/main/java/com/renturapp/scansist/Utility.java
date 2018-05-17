@@ -7,15 +7,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -92,7 +88,7 @@ public class Utility extends Application {
 
         inputManager.hideSoftInputFromWindow(v.getWindowToken(), 0);
     }
-    public TextView setTitle(Context c, String s) {
+    private TextView setTitle(Context c, String s) {
         TextView title = new TextView(c);
         // You Can Customise your Title here
         title.setText(s);
@@ -103,9 +99,10 @@ public class Utility extends Application {
         title.setTextSize(20);
         return title;
     }
-    public TextView setText(Context c,String s){
+    private TextView setText(Context c, String s){
         TextView m = new TextView(c);
-        m.setText("\n" + s);
+        String text = "\n" + s;
+        m.setText(text);
         m.setTextSize(15);
         m.setGravity(Gravity.CENTER_HORIZONTAL);
         return m;
@@ -115,7 +112,7 @@ public class Utility extends Application {
         final Context c = ctx;
         final Boolean f = finish;
         AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
-        String message = "";
+        StringBuilder message;
         if (f) {
             builder.setCustomTitle(setTitle(c, getString(R.string.confirm_finish)));
         } else {
@@ -130,28 +127,28 @@ public class Utility extends Application {
               }
             }
             if (d>0) {
-              message = "Upload " + scanAdapter.getCount() + " Scanned Job" + (scanAdapter.getCount() > 1 ? "s" : "") + "\n"
-              + d +" Damaged:\n\n";
+              message = new StringBuilder("Upload " + scanAdapter.getCount() + " Scanned Job" + (scanAdapter.getCount() > 1 ? "s" : "") + "\n"
+                  + d + " Damaged:\n\n");
             } else {
-              message = "Upload " + scanAdapter.getCount() + " Scanned Job" + (scanAdapter.getCount() > 1 ? "s" : "") + ":\n\n";
+              message = new StringBuilder("Upload " + scanAdapter.getCount() + " Scanned Job" + (scanAdapter.getCount() > 1 ? "s" : "") + ":\n\n");
             }
 
             for (Scan s : scans) {
-              message += "i" + s.scanID + s.scanBarCode + " " + s.clauseCode + " " +"\n";
+              message.append("i").append(s.scanID).append(s.scanBarCode).append(" ").append(s.clauseCode).append(" ").append("\n");
             }
           } else {
-            message = "Cancel the ScanSist™ App?\n\nClear " + scanAdapter.getCount() + " Scanned Job" + (scanAdapter.getCount() > 1 ? "s" : "") + ":\n\n";
+            message = new StringBuilder("Cancel the ScanSist™ App?\n\nClear " + scanAdapter.getCount() + " Scanned Job" + (scanAdapter.getCount() > 1 ? "s" : "") + ":\n\n");
             for (Scan s : scans) {
                 if (s.clauseID>0) {
-                  message += "i" + s.scanID + " " + s.scanBarCode + " " + s.clauseCode + " " + "\n";
+                  message.append("i").append(s.scanID).append(" ").append(s.scanBarCode).append(" ").append(s.clauseCode).append(" ").append("\n");
                 } else {
-                  message += "i" + s.scanID + " " + s.scanBarCode + "               " + "\n";
+                  message.append("i").append(s.scanID).append(" ").append(s.scanBarCode).append("               ").append("\n");
                 }
             }
 
           }
 
-          builder.setView(setText(c,message));
+          builder.setView(setText(c, message.toString()));
         } else {
             if (f) {
                 builder.setView(setText(c, getString(R.string.confirm_message_finish)));
@@ -172,7 +169,7 @@ public class Utility extends Application {
                SharedPreferences sharedPref = c.getApplicationContext().getSharedPreferences("ScanSist", 0);
                SharedPreferences.Editor editor = sharedPref.edit();
                editor.clear();   //its clear all data.
-               editor.commit();  //Don't forgot to commit  SharedPreferences.
+               editor.apply();  //Don't forgot to commit  SharedPreferences.
 
                dialog.dismiss();
                ((Activity) c).finish();
@@ -200,7 +197,7 @@ public class Utility extends Application {
         dialog.show();
 
         Button n = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-        Button p = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        //Button p = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
 
         // Set the layout parameters for TextView
         //LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
@@ -350,7 +347,7 @@ public class Utility extends Application {
             sa.put(sc);
         }
         editor.putString("scans",sa.toString());
-        editor.commit();
+        editor.apply();
         return sa.toString();
     }
 }

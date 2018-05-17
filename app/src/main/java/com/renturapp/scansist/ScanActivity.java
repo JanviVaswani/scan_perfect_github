@@ -9,7 +9,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,7 +20,6 @@ import android.widget.Button;
 
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.zxing.ResultPoint;
 import com.google.zxing.client.android.BeepManager;
@@ -30,13 +28,7 @@ import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 import com.squareup.otto.Subscribe;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -202,7 +194,7 @@ public class ScanActivity extends Activity implements
       trunkNumber = sharedPref.getInt("trunkNumber", 0);
       ((TextView) findViewById(R.id.lblScanTrunk)).setText("Trunk: " + Integer.toString(trunkNumber));
     }
-    mTrunk = String.format("%02d",trunkNumber);
+    mTrunk = String.format(Locale.UK, "%02d",trunkNumber);
 
     String scanDateTime = intent.getStringExtra("scanDateTime");
 
@@ -210,7 +202,7 @@ public class ScanActivity extends Activity implements
       setScanDate(scanDateTime);
     } else {
       scanDateTime = sharedPref.getString("scanDateTime", "NothingFound");
-      if (scanDateTime != "NothingFound"){
+      if (!scanDateTime.equals("NothingFound")){
         setScanDate(scanDateTime);
       }
     }
@@ -219,9 +211,13 @@ public class ScanActivity extends Activity implements
 
     String scansJson = sharedPref.getString("scans", "NothingFound");
 
-    if (scansJson != "NothingFound") {
+    if (!scansJson.equals("NothingFound")) {
       u.setupScans(scansJson);
-      setNextFinish(true);
+      if (u.scanAdapter.getCount()>0) {
+        setNextFinish(true);
+      } else {
+        setNextFinish(false);
+      }
     } else {
       setNextFinish(false);
     }
@@ -303,7 +299,7 @@ public class ScanActivity extends Activity implements
 
 
     //hh 12hour format - HH 24 hr format
-    SimpleDateFormat scan_sdf = new SimpleDateFormat("yyyy-MM-dd-HHmmss", Locale.UK);
+    SimpleDateFormat scan_sdf = new SimpleDateFormat("yyyy-MM-dd_HHmmss", Locale.UK);
     String uploadDateTime = scan_sdf.format(new Date());
 
 
@@ -311,19 +307,29 @@ public class ScanActivity extends Activity implements
     String depotNumber   = PreferenceManager.getDefaultSharedPreferences(context).getString("DepotNumber", "NothingFound");
     String scanSistCode =  String.valueOf(PreferenceManager.getDefaultSharedPreferences(context).getInt("ScanSistCode", 0));
 
-    String d = "/demo/users/scansist/Upload_" + depotNumber + uploadDateTime +"001.xml";
+    String url      = "www.movesist.com";
+    String username = "clients";
+    String userpass = "wdrcv227qt";
 
-    new ScanFTPFileUploadTask().execute("www.movesist.com",
-            "clients",
-            "wdrcv227qt",
-            s,
-            d,
-            mDirection,
-            mStatus,
-            mTrunk,
-            mManifestDate,
-            depotNumber,
-            scanSistCode);
+    if (!depotNumber.equals("099")) {
+      url      = "www.hazchemonline.com";
+      username = "haz" + depotNumber;
+      userpass = "haz" + depotNumber;
+    }
+
+    String d = "/demo/users/scansist/Upload_" + depotNumber + "_" + uploadDateTime +"-001.xml";
+
+      new ScanFTPFileUploadTask().execute(url,
+        username,
+        userpass,
+        s,
+        d,
+        mDirection,
+        mStatus,
+        mTrunk,
+        mManifestDate,
+        depotNumber,
+        scanSistCode);
 
   }
   @Subscribe
@@ -341,7 +347,7 @@ public class ScanActivity extends Activity implements
       SharedPreferences sharedPref = context.getApplicationContext().getSharedPreferences("ScanSist", 0);
       SharedPreferences.Editor editor = sharedPref.edit();
       editor.clear();   //its clear all data.
-      editor.commit();  //Don't forgot to commit  SharedPreferences.
+      editor.apply();  //Don't forgot to commit  SharedPreferences.
       u.scans.clear();
       u.scanAdapter.notifyDataSetChanged();
       resume(vb);

@@ -5,14 +5,12 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -33,7 +31,6 @@ import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
 
@@ -67,14 +64,9 @@ public class MainActivity extends Activity {
   private String androidId;
   private String regdatetime;
   private String licencedatetime;
-  private String downloaddata;
   private TelephonyManager tm = null;
   private static boolean uploadregfile = false;
-  private String deliveryConsignee;
-  private String ourReference;
-  private String mScheduleID;
-  public static String mCompanyID = "2";
-  public static String mBuildType = "MoveSist";
+  private static String mCompanyID = "6";
 
   private Utility u;
 
@@ -92,8 +84,8 @@ public class MainActivity extends Activity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
-    String mcompany = "demo";
-    String getType = "7";
+    String mcompany = "awe";
+    //String getType = "7";
     uploadregfile = false;
     context = MainActivity.this;
 
@@ -131,18 +123,18 @@ public class MainActivity extends Activity {
 
     if (!previousPressed) {
       tm = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
-      if (tm.getDeviceId() != null) {
+      if (tm != null && tm.getDeviceId() != null) {
         tmDevice = "" + tm.getDeviceId();
       } else {
         tmDevice = "";
       }
-      if (tm.getSimSerialNumber() != null) {
+      if (tm != null && tm.getSimSerialNumber() != null) {
         tmSerial = "" + tm.getSimSerialNumber();
       } else {
         tmSerial = "";
       }
       androidId = "" + android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
-      downloaddata = "" + "http://www.movesist.com/data/scansists/?CompanyID=" + mCompanyID + "&getType=" + getType + "&AndroidId=" + androidId;
+      //String downloaddata = "" + "http://www.movesist.com/data/scansists/?CompanyID=" + mCompanyID + "&getType=" + getType + "&AndroidId=" + androidId;
 
       deviceUu = "scansist_" + mcompany + "_" + androidId;
       String deviceFullPath = "http://www.movesist.com/clients/\" + mcompany + \"/users/scansist/" + deviceUu + "_p.html";
@@ -162,7 +154,7 @@ public class MainActivity extends Activity {
 
         //Do we need to upload a file
         progressDialog = new ProgressDialog(context);//.show(context, "ScanSist™ - Barcode Scanning Assistant", "Registering Licence - v" + getVersionName(context) + "\n\n         Please wait.", true, false);
-        progressDialog.setCustomTitle(setProgressTitle("ScanSist™ - Barcode Scannng Assistant"));
+        progressDialog.setCustomTitle(setProgressTitle());
         progressDialog.setMessage("Registering Licence - v" + getVersionName(context) + "\n\n         Please wait.");
         progressDialog.setIndeterminate(true);
         progressDialog.setCancelable(false);
@@ -181,7 +173,7 @@ public class MainActivity extends Activity {
           //Check for the occurrence of the file that is shown in the saved registration key adding a '_p' will ensure it runs once registered
           String deviceRegFullPath = "http://www.movesist.com/clients/" + mcompany + "/users/scansist/" + deviceUuPref + "_p.html";
           progressDialog = new ProgressDialog(context);//.show(context, "ScanSist™ - Barcode Scannng Assistant", "Checking Licence - v" + getVersionName(context) + "\n\n    Company (" + mcompany + ")\n\n         Please wait.", true, false);
-          progressDialog.setCustomTitle(setProgressTitle("ScanSist™ - Barcode Scannng Assistant"));
+          progressDialog.setCustomTitle(setProgressTitle());
           progressDialog.setMessage("Checking Licence - v" + getVersionName(context) + "\n\n    Company (" + mcompany + ")\n\n         Please wait.");
           progressDialog.setIndeterminate(true);
           progressDialog.setCancelable(false);
@@ -274,7 +266,7 @@ public class MainActivity extends Activity {
     //SharedPreferences sharedPref= getApplicationContext().getSharedPreferences("ScanSist",MODE_PRIVATE);
     String scanDateTime = sharedPref.getString("scanDateTime", "NothingFound");
 
-    if (scanDateTime != "NothingFound") {
+    if (!scanDateTime.equals("NothingFound")) {
       SimpleDateFormat scan_sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.UK);
       try{
         mDate = scan_sdf.parse(scanDateTime);
@@ -306,7 +298,7 @@ public class MainActivity extends Activity {
 
     String scansJson = sharedPref.getString("scans", "NothingFound");
 
-    if (scansJson != "NothingFound") {
+    if (!scansJson.equals("NothingFound")) {
       u.setupScans(scansJson);
     }
 
@@ -387,15 +379,19 @@ public class MainActivity extends Activity {
     }
   }
   private void setRadioButton(Integer s) {
-    if (s==0) {
-      RadioButton fh = (RadioButton)findViewById(R.id.rBtnFromHub);
-      fh.setChecked(true);
-    } else if (s==1) {
-      RadioButton th = (RadioButton)findViewById(R.id.rBtnToHub);
-      th.setChecked(true);
-    } else if (s==2) {
-      RadioButton d = (RadioButton)findViewById(R.id.rBtnOntoDelivery);
-      d.setChecked(true);
+    switch (s) {
+      case 0:
+        RadioButton fh = (RadioButton) findViewById(R.id.rBtnFromHub);
+        fh.setChecked(true);
+        break;
+      case 1:
+        RadioButton th = (RadioButton) findViewById(R.id.rBtnToHub);
+        th.setChecked(true);
+        break;
+      case 2:
+        RadioButton d = (RadioButton) findViewById(R.id.rBtnOntoDelivery);
+        d.setChecked(true);
+        break;
     }
     setBtnNextEnable();
   }
@@ -493,7 +489,7 @@ public class MainActivity extends Activity {
   @Override
   protected void onDestroy() {
 
-    int status = 0;
+    int status;
 
     Trunk trunk = (Trunk)spnTrunk.getSelectedItem();
 
@@ -530,7 +526,7 @@ public class MainActivity extends Activity {
 
     //editor.putString("title",title);
     editor.putInt("status",status);
-    editor.commit();
+    editor.apply();
     MyAsyncBus.getInstance().unregister(this);
     super.onDestroy();
   }
@@ -673,7 +669,7 @@ public class MainActivity extends Activity {
       u.displayMessage(context, "Warning - No ScanSist™ Registration Data Available.");
     }
   }
-  private TextView setProgressTitle (String t){
+  private TextView setProgressTitle (){
     // Create a TextView programmatically.
     TextView tv = new TextView(context);
 
@@ -685,7 +681,7 @@ public class MainActivity extends Activity {
     tv.setPadding(15, 10, 15, 10);
     tv.setGravity(Gravity.CENTER);
     tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
-    tv.setText(t);
+    tv.setText(getResources().getString(R.string.progress_title));
     tv.setTextColor(Color.WHITE);
     tv.setBackgroundColor(Color.DKGRAY);
     return tv;
@@ -701,13 +697,8 @@ public class MainActivity extends Activity {
 
   private boolean isOnline() {
     ConnectivityManager cm =
-            (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-    if (cm!=null) {
-      return cm.getActiveNetworkInfo() != null &&
-              cm.getActiveNetworkInfo().isConnectedOrConnecting();
-    } else {
-      return false;
-    }
+        (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+    return cm != null && cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnectedOrConnecting();
   }
 
   private void delaydialogueClose(final Boolean goBack) {
