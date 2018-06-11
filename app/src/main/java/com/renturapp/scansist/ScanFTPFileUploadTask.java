@@ -43,7 +43,7 @@ class ScanFTPFileUploadTask extends AsyncTask<String, Void, Boolean> {
           JSONObject s = sa.getJSONObject(i);
           data.append("  <Status>\n");
           data.append("   <Barcode>").append(s.getString("scanBarCode")).append("</Barcode>\n");
-          data.append("   <StatusCode>").append(params[6]).append("</StatusCode>\n");
+          data.append("   <StatusCode>").append(s.getInt("clauseID")!=4?params[6]:s.getString("clauseCode")).append("</StatusCode>\n");
           data.append("   <StatusDate>").append(s.getString("scanDateTime")).append("</StatusDate>\n");
           data.append("   <User>").append(params[9]).append("</User>\n");
           data.append("   <Device>").append(params[9]).append("-").append(params[10]).append("</Device>\n");
@@ -57,7 +57,7 @@ class ScanFTPFileUploadTask extends AsyncTask<String, Void, Boolean> {
           data.append("    <Downloaded></Downloaded>\n");
           data.append("   </Manifest>\n");
           data.append("  </Status>\n");
-          if(s.getInt("clauseID")!=0) {
+          if(s.getInt("clauseID")!=0 && s.getInt("clauseID")!=4) {
             data.append("  <Status>\n");
             data.append("   <Barcode>").append(s.getString("scanBarCode")).append("</Barcode>\n");
             data.append("   <StatusCode>").append(s.getString("clauseCode")).append("</StatusCode>\n");
