@@ -66,7 +66,7 @@ public class MainActivity extends Activity {
   private String licencedatetime;
   private TelephonyManager tm = null;
   private static boolean uploadregfile = false;
-  private static String mCompanyID = "6";
+  private static String mCompanyID = "2";
 
   private Utility u;
 
@@ -84,7 +84,7 @@ public class MainActivity extends Activity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
-    String mcompany = "awe";
+    String mcompany = "demo";
     //String getType = "7";
     uploadregfile = false;
     context = MainActivity.this;

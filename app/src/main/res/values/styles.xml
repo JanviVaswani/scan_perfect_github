@@ -1,6 +1,12 @@
 <resources>
-    <!-- Base application theme. -->
-    <style name="RentUrAppTheme" parent="android:Theme.DeviceDefault.Light">
-        <!-- Customize your theme here -->
-    </style>
+  <!-- Base application theme. -->
+  <style name="RentUrAppTheme" parent="android:Theme.DeviceDefault.Light">
+    <!-- Customize your theme here -->
+    <item name="android:actionBarStyle">@style/RentUrApp.ActionBar</item>
+  </style>
+  <!-- Bonus: if you want to style whole Action Bar, not just the menu -->
+  <style name="RentUrApp.ActionBar" parent="android:Widget.Holo.Light.ActionBar.Solid">
+    <!-- Blue background color & black bottom border -->
+    <item name="android:background">@color/blue_action_bar_background</item>
+  </style>
 </resources>
