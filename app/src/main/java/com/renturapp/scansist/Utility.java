@@ -36,7 +36,7 @@ public class Utility extends Application {
     public ListScanAdapter scanAdapter;
 
     public Utility() {
-        setupTrunks();
+        //setupTrunks();
     }
 
     /*Menu Items*/
@@ -197,27 +197,8 @@ public class Utility extends Application {
         dialog.show();
 
         Button n = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-        //Button p = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-
-        // Set the layout parameters for TextView
-        //LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-        //        LinearLayout.LayoutParams.WRAP_CONTENT, // Width of Button
-        //        LinearLayout.LayoutParams.WRAP_CONTENT);//, // Height of Button
-                //1);//Weight of Button
-
-        //lp.setMargins(0,5,0,0);
-
-        //n.setLayoutParams(lp);
-        //n.setBackgroundColor(getResources().getColor(R.color.materialGrey300));
-        //n.setTextColor(getResources().getColor(R.color.black));
         n.setGravity(Gravity.LEFT);
         n.setWidth(150);
-
-        //p.setLayoutParams(lp);
-        //p.setBackgroundColor(getResources().getColor(R.color.materialGrey300));
-        //p.setTextColor(getResources().getColor(R.color.black));
-        //p.setGravity(Gravity.RIGHT);
-        //p.setWidth(250);
 
         if (timeout) {
             final Timer t = new Timer();
@@ -276,24 +257,6 @@ public class Utility extends Application {
         }
         clauseAdapter.notifyDataSetChanged();
     }
-    private void setupTrunks() {
-
-        trunkAdapter = new ListTrunkAdapter(this);
-        //trunks.clear();
-        trunks.add(new Trunk(0, "Select a Trunk"));
-        trunks.add(new Trunk(1, "Trunk 1"));
-        trunks.add(new Trunk(2, "Trunk 2"));
-        trunks.add(new Trunk(3, "Trunk 3"));
-        trunks.add(new Trunk(4, "Trunk 4"));
-        trunks.add(new Trunk(5, "Trunk 5"));
-        trunks.add(new Trunk(6, "Trunk 6"));
-        trunks.add(new Trunk(7, "Trunk 7"));
-        trunks.add(new Trunk(8, "Trunk 8"));
-        trunks.add(new Trunk(9, "Trunk 9"));
-        trunks.add(new Trunk(10,"Trunk 10"));
-        trunkAdapter.notifyDataSetChanged();
-
-    }
     public void sortScans() {
         Collections.sort(scans, new Comparator<Scan>() {
             @Override
@@ -350,4 +313,45 @@ public class Utility extends Application {
         editor.apply();
         return sa.toString();
     }
+
+    public void setupTrunks(String trunksJson) {
+        trunks.clear();
+        try {
+            //JSONObject s = new JSONObject(scansJson);
+            JSONArray ta = new JSONArray(trunksJson);
+            for (int i=0; i<ta.length();i++){
+                JSONObject t = ta.getJSONObject(i);
+                trunks.add(new Trunk(
+                    t.getInt("trunkNumber"),
+                    t.getString("trunkDescription")));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        trunkAdapter.notifyDataSetChanged();
+    }
+
+  public String saveTrunks () {
+    // Create object of SharedPreferences.
+    SharedPreferences sharedPref= getApplicationContext().getSharedPreferences("ScanSist",MODE_PRIVATE);
+    //now get Editor
+    SharedPreferences.Editor editor= sharedPref.edit();
+
+    /*Save Logic*/
+    JSONArray ta = new JSONArray();
+    for (Trunk t: trunks) {
+      JSONObject tc= new JSONObject();
+      try {
+        tc.put("trunkNumber",t.trunkNumber);
+        tc.put("trunkDescription",t.trunkDescription);
+      } catch (JSONException e){
+        e.printStackTrace();
+      }
+      ta.put(tc);
+    }
+    editor.putString("trunks",ta.toString());
+    editor.apply();
+    return ta.toString();
+  }
+
 }

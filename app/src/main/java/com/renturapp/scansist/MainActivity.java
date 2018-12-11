@@ -64,20 +64,19 @@ public class MainActivity extends Activity {
   private String androidId;
   private String regdatetime;
   private String licencedatetime;
+  private String downloadtrunkdata ="";
   private TelephonyManager tm = null;
   private static boolean uploadregfile = false;
   private static String mCompanyID = "2";
-
+  private static boolean localData = false;
   private Utility u;
 
   private Calendar myCalendar;
   private EditText dateText;
   private DatePickerDialog.OnDateSetListener date;
   private Date mDate;
-  //private String mTitle;
   private Spinner spnTrunk;
 
-  //private Button btnPrevous;
   private Button btnNext;
 
   @Override
@@ -85,17 +84,15 @@ public class MainActivity extends Activity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
     String mcompany = "demo";
-    //String getType = "7";
     uploadregfile = false;
     context = MainActivity.this;
+
+    u = (Utility)getApplicationContext();
 
     if (!isOnline()) {
 
       u.displayMessage(context, "No Internet connection.\n\nLicence cannot be verified.");
-      //onBackPressed();
-      //Do not call local method!
       MainActivity.super.onBackPressed();
-      //return;
     }
     //New instance is set to null
     progressDialog = null;
@@ -103,7 +100,6 @@ public class MainActivity extends Activity {
     Boolean debugMode = false;
     if (debugMode) {
       u.displayMessage(context, "ScanSist™ - Trial Application - Please wait.");
-      //return;
     }
 
     SharedPreferences sharedPref= getApplicationContext().getSharedPreferences("ScanSist",MODE_PRIVATE);
@@ -116,11 +112,15 @@ public class MainActivity extends Activity {
     *
     *                          */
     Intent intent = getIntent();
-
+    androidId = "" + android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+    if (!localData) {
+      downloadtrunkdata = "https://www.movesist.com/data/trunks/?CompanyID=" + mCompanyID + "&getType=7&AndroidId=" + androidId;
+    } else {
+      downloadtrunkdata = "http://192.168.0.5/data/trunks/?CompanyID=" + mCompanyID + "&getType=7&AndroidId=" + androidId;
+    }
     // getting attached intent data
     Boolean previousPressed  = intent.getBooleanExtra("onBackPressed",false);
     /* Called when the activity is first created. */
-
     if (!previousPressed) {
       tm = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
       if (tm != null && tm.getDeviceId() != null) {
@@ -133,15 +133,11 @@ public class MainActivity extends Activity {
       } else {
         tmSerial = "";
       }
-      androidId = "" + android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
-      //String downloaddata = "" + "http://www.movesist.com/data/scansists/?CompanyID=" + mCompanyID + "&getType=" + getType + "&AndroidId=" + androidId;
-
       deviceUu = "scansist_" + mcompany + "_" + androidId;
-      String deviceFullPath = "http://www.movesist.com/clients/\" + mcompany + \"/users/scansist/" + deviceUu + "_p.html";
+
+      String deviceFullPath = "https://www.movesist.com/clients/" + mcompany + "/users/scansist/" + deviceUu + "_p.html";
       deviceFilePath = "/" + mcompany + "/users/scansist/" + deviceUu + "_p.html";
 
-
-      //String deviceUuPref = sharedPref.getString("RegKey", "NothingFound");
       //Must use default preference file!
       String deviceUuPref = PreferenceManager.getDefaultSharedPreferences(context).getString("RegKey", "NothingFound");
 
@@ -153,7 +149,7 @@ public class MainActivity extends Activity {
       if (deviceUuPref.equals("NothingFound")) {
 
         //Do we need to upload a file
-        progressDialog = new ProgressDialog(context);//.show(context, "ScanSist™ - Barcode Scanning Assistant", "Registering Licence - v" + getVersionName(context) + "\n\n         Please wait.", true, false);
+        progressDialog = new ProgressDialog(context);
         progressDialog.setCustomTitle(setProgressTitle());
         progressDialog.setMessage("Registering Licence - v" + getVersionName(context) + "\n\n         Please wait.");
         progressDialog.setIndeterminate(true);
@@ -165,14 +161,11 @@ public class MainActivity extends Activity {
         if (!isOnline()) {
 
           u.displayMessage(context, "No Internet connection.\n\nLicence cannot be verified.");
-          //onBackPressed();
-          //Do not call local method!
           MainActivity.super.onBackPressed();
-          //return;
         } else {
           //Check for the occurrence of the file that is shown in the saved registration key adding a '_p' will ensure it runs once registered
-          String deviceRegFullPath = "http://www.movesist.com/clients/" + mcompany + "/users/scansist/" + deviceUuPref + "_p.html";
-          progressDialog = new ProgressDialog(context);//.show(context, "ScanSist™ - Barcode Scannng Assistant", "Checking Licence - v" + getVersionName(context) + "\n\n    Company (" + mcompany + ")\n\n         Please wait.", true, false);
+          String deviceRegFullPath = "https://www.movesist.com/clients/" + mcompany + "/users/scansist/" + deviceUuPref + "_p.html";
+          progressDialog = new ProgressDialog(context);
           progressDialog.setCustomTitle(setProgressTitle());
           progressDialog.setMessage("Checking Licence - v" + getVersionName(context) + "\n\n    Company (" + mcompany + ")\n\n         Please wait.");
           progressDialog.setIndeterminate(true);
@@ -181,6 +174,18 @@ public class MainActivity extends Activity {
           new CheckLicenceTask().execute(deviceRegFullPath);
           uploadregfile = false;
         }
+      }
+    } else {
+      String trunksJson = sharedPref.getString("trunks", "NothingFound");
+      if (!trunksJson.equals("NothingFound")) {
+        if (u.trunkAdapter == null) {
+          u.trunkAdapter = new ListTrunkAdapter(u);
+        }
+        u.setupTrunks(trunksJson);
+        setupTrunkSpinner(sharedPref);
+      } else {
+        //May have just finished so reload
+        new DownloadTrunkDataTask().execute(downloadtrunkdata);
       }
     }
     /*
@@ -193,41 +198,14 @@ public class MainActivity extends Activity {
 
     MyAsyncBus.getInstance().register(this);
 
-    u = (Utility)getApplicationContext();
-
-
-    //if (u.trunkAdapter == null) {
-    //  u.setupTrunks();
-    //}
     if (u.scanAdapter == null) {
       u.scanAdapter = new ListScanAdapter(u);
     }
-
-
-    //btnPrevous = (Button)findViewById(R.id.btnPrevious);
-    //btnPrevous.setClickable(false);
-    //btnPrevous.setAlpha(0.5f);
 
     btnNext = (Button)findViewById(R.id.btnNext);
     btnNext.setClickable(false);
     btnNext.setAlpha(0.5f);
 
-
-    spnTrunk = (Spinner) findViewById(R.id.spnTrunk);
-    spnTrunk.setVisibility(View.VISIBLE);
-    spnTrunk.setAdapter(u.trunkAdapter);
-
-    spnTrunk.setOnItemSelectedListener(
-            new AdapterView.OnItemSelectedListener() {
-              @Override
-              public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                setBtnNextEnable();
-              }
-              @Override
-              public void onNothingSelected(AdapterView<?> arg0) {
-
-              }
-            });
 
     myCalendar = Calendar.getInstance();
 
@@ -237,11 +215,11 @@ public class MainActivity extends Activity {
       @Override
       public void onDateSet(DatePicker view, int year, int monthOfYear,
                             int dayOfMonth) {
-        // TODO Auto-generated method stub
-        myCalendar.set(Calendar.YEAR, year);
-        myCalendar.set(Calendar.MONTH, monthOfYear);
-        myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-        updateLabel();
+      // TODO Auto-generated method stub
+      myCalendar.set(Calendar.YEAR, year);
+      myCalendar.set(Calendar.MONTH, monthOfYear);
+      myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+      updateLabel();
       }
 
     };
@@ -250,15 +228,15 @@ public class MainActivity extends Activity {
 
       @Override
       public void onClick(View v) {
-        // TODO Auto-generated method stub
-        new DatePickerDialog(context, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT,date, myCalendar
+      // TODO Auto-generated method stub
+      new DatePickerDialog(context, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT,date, myCalendar
                 .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
                 myCalendar.get(Calendar.DAY_OF_MONTH)).show();
 
-        if (mDate!=null) {
-          myCalendar.setTime(mDate);
-        }
-        u.hideKeyboard(context);
+      if (mDate!=null) {
+        myCalendar.setTime(mDate);
+      }
+      u.hideKeyboard(context);
       }
     });
 
@@ -278,15 +256,6 @@ public class MainActivity extends Activity {
       }
     }
 
-    int trunkNumber = sharedPref.getInt("trunkNumber", 0);
-
-    for (int i = 0;i<=u.trunkAdapter.getCount();i++) {
-      Trunk t = (Trunk)spnTrunk.getItemAtPosition(i);
-      if (t != null && trunkNumber == t.trunkNumber) {
-        spnTrunk.setSelection(i);
-        break;
-      }
-    }
     int status = sharedPref.getInt("status", -1);
 
     if (status != -1) {
@@ -301,7 +270,6 @@ public class MainActivity extends Activity {
     if (!scansJson.equals("NothingFound")) {
       u.setupScans(scansJson);
     }
-
     setBtnNextEnable();
   }
   // very important when rotating !!! http://stackoverflow.com/questions/456211/activity-restart-on-rotation-android
@@ -352,18 +320,43 @@ public class MainActivity extends Activity {
         break;
       case R.id.btnCancel:
         u.messageBox(context,false,false);
-        //onBackPressed();
         break;
       default:
         throw new RuntimeException("Unknow button ID");
     }
   }
+
+  private void setupTrunkSpinner(SharedPreferences sharedPref) {
+
+    spnTrunk = (Spinner) findViewById(R.id.spnTrunk);
+    spnTrunk.setVisibility(View.VISIBLE);
+    spnTrunk.setAdapter(u.trunkAdapter);
+
+    spnTrunk.setOnItemSelectedListener(
+        new AdapterView.OnItemSelectedListener() {
+          @Override
+          public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            setBtnNextEnable();
+          }
+          @Override
+          public void onNothingSelected(AdapterView<?> arg0) {
+          }
+        });
+    int trunkNumber = sharedPref.getInt("trunkNumber", 0);
+    for (int i = 0; i <= u.trunkAdapter.getCount(); i++) {
+      Trunk t = (Trunk) spnTrunk.getItemAtPosition(i);
+      if (t != null && trunkNumber == t.trunkNumber) {
+        spnTrunk.setSelection(i);
+        break;
+      }
+    }
+  }
+
   private void setBtnNextEnable() {
 
     TextView id = (TextView)findViewById(R.id.ID);
 
     int trunkNumber = 0;
-    //boolean testMode = true;
     if (id != null) {
       trunkNumber =  parseInt(id.getText().toString());
     }
@@ -447,23 +440,11 @@ public class MainActivity extends Activity {
         // User choose the "Setup home Option" action, go to home screen
         u.changeMenuItemState(u.getHome(), false, true, false);
         u.changeMenuItemState(u.getBarCode(), false, false, false);
-        //if (mCameraView) {
-          //if Camera visible need to goback twice!
-          //onBackPressed();
-        //}
         onBackPressed();
         return true;
       case R.id.action_barcode:
-
-        //Intent nextScreen = new Intent(MainActivity.this,ScanMenuActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        //startActivity(nextScreen);
-        //finish();
-
-        //changeMenuItemState(mBarcode,true,true,false);
-
         return true;
       case R.id.action_flash:
-
         return true;
       default:
         // If we got here, the user's action was not recognized.
@@ -473,17 +454,6 @@ public class MainActivity extends Activity {
   }
   @Override
   public void onBackPressed() {
-
-    /*new AlertDialog.Builder(this)
-            .setCustomTitle(u.setTitle(context, getString(R.string.confirm_exit)))
-             .setView(u.setText(context,getString(R.string.confirm_message_exit)))
-            .setNegativeButton(R.string.no, null)
-            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-
-              public void onClick(DialogInterface arg0, int arg1) {
-                MainActivity.super.onBackPressed();
-              }
-            }).create().show();*/
     MainActivity.super.onBackPressed();
   }
   @Override
@@ -524,7 +494,6 @@ public class MainActivity extends Activity {
         break;
     }
 
-    //editor.putString("title",title);
     editor.putInt("status",status);
     editor.apply();
     MyAsyncBus.getInstance().unregister(this);
@@ -540,8 +509,8 @@ public class MainActivity extends Activity {
         delaydialogueClose(true);
       } else {
         //licence ok so download data if required
+        new DownloadTrunkDataTask().execute(downloadtrunkdata);
         delaydialogueClose(false);
-        //////////////////////to do new DownloadDataTask().execute(downloaddata);
       }
     } else {
       //Upload file
@@ -601,10 +570,7 @@ public class MainActivity extends Activity {
 
     if (!event.getResult()) {
       delaydialogueClose(true);
-
       u.displayMessage(context, "Registration Failed.");
-      //onBackPressed();
-      //return;Warning:(217, 13) 'return' is unnecessary as the last statement in a 'void' method
     } else {
       new RegisterScanSistTask().execute(tmSerial
               , tmLineNumber
@@ -627,16 +593,15 @@ public class MainActivity extends Activity {
   @Subscribe
   public void onRegisterScanSistTaskResultEvent(RegisterScanSistTaskResultEvent event) {
     //Must use the default preference file!
-    //PreferenceManager.getDefaultSharedPreferences(context).edit().putString("RegKey", deviceUu).apply();
     delaydialogueClose(false);
     if (event.getResult()) {
       u.displayMessage(context, "Registration Completed");
     } else {
       u.displayMessage(context, "Registration Completed\n\n" + "Warning - ScanSist™ not added to MoveSist™ database");
-      //inhibitLocationUpdates = false;
     }
     //licence ok so download data
-    new DownloadDataTask().execute("http://www.movesist.com/data/scansists/?CompanyID=" + mCompanyID +"&getType=3&AndroidId=" + androidId);
+    new DownloadDataTask().execute("https://www.movesist.com/data/scansists/?CompanyID=" + mCompanyID +"&getType=3&AndroidId=" + androidId);
+    new DownloadTrunkDataTask().execute(downloadtrunkdata);
   }
   @Subscribe
   public void onDownloadTaskResultEvent(DownloadDataTaskResultEvent event) {
@@ -668,6 +633,38 @@ public class MainActivity extends Activity {
     } else {
       u.displayMessage(context, "Warning - No ScanSist™ Registration Data Available.");
     }
+  }
+  @Subscribe
+  public void onDownloadTrunkTaskResultEvent(DownloadTrunkDataTaskResultEvent event) {
+    delaydialogueClose(false);
+    //progressDialog.dismiss();
+    boolean wasEmpty = false;
+    if (event.getResult()!=null) {
+      if (u.trunks.isEmpty()) {
+        wasEmpty = true;
+      }
+      u.trunkAdapter = new ListTrunkAdapter(u);
+      u.trunks.clear();
+      u.trunkAdapter.notifyDataSetChanged();
+      Trunk defaultEntry = new Trunk(0,"Select a Trunk");
+      u.trunks.add(defaultEntry);
+      try {
+        JSONArray data_array = new JSONArray(event.getResult());
+        for (int i = 0; i < data_array.length(); i++) {
+          JSONObject obj = new JSONObject(data_array.get(i).toString());
+          Trunk add = new Trunk(obj.getInt("TrunkNumber"),obj.getString("TrunkDescription"));
+          u.trunks.add(add);
+        }
+        u.trunkAdapter.notifyDataSetChanged();
+      } catch (JSONException e) {
+        e.printStackTrace();
+      }
+    } else {
+      u.displayMessage(context, "Warning - No ScanSist™ Trunk Data available.");
+    }
+    SharedPreferences sharedPref= getApplicationContext().getSharedPreferences("ScanSist",MODE_PRIVATE);
+    setupTrunkSpinner(sharedPref);
+    u.saveTrunks();
   }
   private TextView setProgressTitle (){
     // Create a TextView programmatically.
