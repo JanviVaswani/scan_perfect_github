@@ -1,5 +1,6 @@
 package com.renturapp.scansist;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -12,6 +13,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -64,7 +66,7 @@ public class MainActivity extends Activity {
   private String androidId;
   private String regdatetime;
   private String licencedatetime;
-  private String downloadtrunkdata ="";
+  private String downloadtrunkdata = "";
   private TelephonyManager tm = null;
   private static boolean uploadregfile = false;
   private static String mCompanyID = "2";
@@ -87,7 +89,7 @@ public class MainActivity extends Activity {
     uploadregfile = false;
     context = MainActivity.this;
 
-    u = (Utility)getApplicationContext();
+    u = (Utility) getApplicationContext();
 
     if (!isOnline()) {
 
@@ -102,15 +104,15 @@ public class MainActivity extends Activity {
       u.displayMessage(context, "ScanSist™ - Trial Application - Please wait.");
     }
 
-    SharedPreferences sharedPref= getApplicationContext().getSharedPreferences("ScanSist",MODE_PRIVATE);
+    SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("ScanSist", MODE_PRIVATE);
 
     /*
-    *
-    *
-    *   Register ScanSist App
-    *
-    *
-    *                          */
+     *
+     *
+     *   Register ScanSist App
+     *
+     *
+     *                          */
     Intent intent = getIntent();
     androidId = "" + android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
     if (!localData) {
@@ -119,20 +121,10 @@ public class MainActivity extends Activity {
       downloadtrunkdata = "http://192.168.0.5/data/trunks/?CompanyID=" + mCompanyID + "&getType=7&AndroidId=" + androidId;
     }
     // getting attached intent data
-    Boolean previousPressed  = intent.getBooleanExtra("onBackPressed",false);
+    Boolean previousPressed = intent.getBooleanExtra("onBackPressed", false);
     /* Called when the activity is first created. */
     if (!previousPressed) {
-      tm = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
-      if (tm != null && tm.getDeviceId() != null) {
-        tmDevice = "" + tm.getDeviceId();
-      } else {
-        tmDevice = "";
-      }
-      if (tm != null && tm.getSimSerialNumber() != null) {
-        tmSerial = "" + tm.getSimSerialNumber();
-      } else {
-        tmSerial = "";
-      }
+
       deviceUu = "scansist_" + mcompany + "_" + androidId;
 
       String deviceFullPath = "https://www.movesist.com/clients/" + mcompany + "/users/scansist/" + deviceUu + "_p.html";
@@ -140,12 +132,6 @@ public class MainActivity extends Activity {
 
       //Must use default preference file!
       String deviceUuPref = PreferenceManager.getDefaultSharedPreferences(context).getString("RegKey", "NothingFound");
-
-      SimpleDateFormat sdf = new SimpleDateFormat("EEEE MMM dd yyyy, hh:mm:ss aa", Locale.UK);
-      licencedatetime = sdf.format(new Date());
-      SimpleDateFormat reg_sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm", Locale.UK);
-      regdatetime = reg_sdf.format(new Date());
-
       if (deviceUuPref.equals("NothingFound")) {
 
         //Do we need to upload a file
@@ -189,12 +175,12 @@ public class MainActivity extends Activity {
       }
     }
     /*
-    *
-    *
-    *     End of ScanSist registration checking
-    *
-    *
-    *                                              */
+     *
+     *
+     *     End of ScanSist registration checking
+     *
+     *
+     *                                              */
 
     MyAsyncBus.getInstance().register(this);
 
@@ -202,24 +188,24 @@ public class MainActivity extends Activity {
       u.scanAdapter = new ListScanAdapter(u);
     }
 
-    btnNext = (Button)findViewById(R.id.btnNext);
+    btnNext = (Button) findViewById(R.id.btnNext);
     btnNext.setClickable(false);
     btnNext.setAlpha(0.5f);
 
 
     myCalendar = Calendar.getInstance();
 
-    dateText= (EditText) findViewById(R.id.txtManifestDate);
+    dateText = (EditText) findViewById(R.id.txtManifestDate);
     date = new DatePickerDialog.OnDateSetListener() {
 
       @Override
       public void onDateSet(DatePicker view, int year, int monthOfYear,
                             int dayOfMonth) {
-      // TODO Auto-generated method stub
-      myCalendar.set(Calendar.YEAR, year);
-      myCalendar.set(Calendar.MONTH, monthOfYear);
-      myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-      updateLabel();
+        // TODO Auto-generated method stub
+        myCalendar.set(Calendar.YEAR, year);
+        myCalendar.set(Calendar.MONTH, monthOfYear);
+        myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+        updateLabel();
       }
 
     };
@@ -228,15 +214,15 @@ public class MainActivity extends Activity {
 
       @Override
       public void onClick(View v) {
-      // TODO Auto-generated method stub
-      new DatePickerDialog(context, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT,date, myCalendar
-                .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
-                myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+        // TODO Auto-generated method stub
+        new DatePickerDialog(context, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT, date, myCalendar
+            .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+            myCalendar.get(Calendar.DAY_OF_MONTH)).show();
 
-      if (mDate!=null) {
-        myCalendar.setTime(mDate);
-      }
-      u.hideKeyboard(context);
+        if (mDate != null) {
+          myCalendar.setTime(mDate);
+        }
+        u.hideKeyboard(context);
       }
     });
 
@@ -246,12 +232,12 @@ public class MainActivity extends Activity {
 
     if (!scanDateTime.equals("NothingFound")) {
       SimpleDateFormat scan_sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.UK);
-      try{
+      try {
         mDate = scan_sdf.parse(scanDateTime);
         String myFormat = "dd/MM/yy"; //In which you need put here
         SimpleDateFormat sdf_scan = new SimpleDateFormat(myFormat, Locale.UK);
         dateText.setText(sdf_scan.format(mDate));
-      } catch(Exception e){
+      } catch (Exception e) {
         e.printStackTrace();
       }
     }
@@ -272,13 +258,15 @@ public class MainActivity extends Activity {
     }
     setBtnNextEnable();
   }
+
   // very important when rotating !!! http://stackoverflow.com/questions/456211/activity-restart-on-rotation-android
   @Override
   public void onConfigurationChanged(Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
     getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-            WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        WindowManager.LayoutParams.FLAG_FULLSCREEN);
   }
+
   private void updateLabel() {
     String myFormat = "dd/MM/yy"; //In which you need put here
     SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.UK);
@@ -298,7 +286,7 @@ public class MainActivity extends Activity {
   public void onWizardButtonClicked(View v) {
     RadioGroup mainGroup = (RadioGroup) findViewById(R.id.rBtnG);
 
-    switch(v.getId()) {
+    switch (v.getId()) {
 
       case R.id.btnPrevious:
         onBackPressed();
@@ -319,7 +307,7 @@ public class MainActivity extends Activity {
         }
         break;
       case R.id.btnCancel:
-        u.messageBox(context,false,false);
+        u.messageBox(context, false, false);
         break;
       default:
         throw new RuntimeException("Unknow button ID");
@@ -338,6 +326,7 @@ public class MainActivity extends Activity {
           public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
             setBtnNextEnable();
           }
+
           @Override
           public void onNothingSelected(AdapterView<?> arg0) {
           }
@@ -354,16 +343,16 @@ public class MainActivity extends Activity {
 
   private void setBtnNextEnable() {
 
-    TextView id = (TextView)findViewById(R.id.ID);
+    TextView id = (TextView) findViewById(R.id.ID);
 
     int trunkNumber = 0;
     if (id != null) {
-      trunkNumber =  parseInt(id.getText().toString());
+      trunkNumber = parseInt(id.getText().toString());
     }
 
     RadioGroup g = (RadioGroup) findViewById(R.id.rBtnG);
 
-    if (dateText.length()>0 && trunkNumber>0 && mDate!=null && g.getCheckedRadioButtonId()!= -1) {
+    if (dateText.length() > 0 && trunkNumber > 0 && mDate != null && g.getCheckedRadioButtonId() != -1) {
       btnNext.setClickable(true);
       btnNext.setAlpha(1f);
     } else {
@@ -371,6 +360,7 @@ public class MainActivity extends Activity {
       btnNext.setAlpha(0.5f);
     }
   }
+
   private void setRadioButton(Integer s) {
     switch (s) {
       case 0:
@@ -388,21 +378,22 @@ public class MainActivity extends Activity {
     }
     setBtnNextEnable();
   }
+
   private void selectPage(Integer status) {
 
     Bundle bundle = new Bundle();
-    bundle.putInt("status",status);
-    Trunk trunk = (Trunk)spnTrunk.getSelectedItem();
+    bundle.putInt("status", status);
+    Trunk trunk = (Trunk) spnTrunk.getSelectedItem();
     bundle.putInt("trunkNumber", trunk.trunkNumber);
 
-    if (mDate!=null) {
+    if (mDate != null) {
       //hh 12hour format - HH 24 hr format
       SimpleDateFormat scan_sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.UK);
       String scanDateTime = scan_sdf.format(mDate);
       bundle.putString("scanDateTime", scanDateTime);
     }
 
-    Intent nextScreen = new Intent(MainActivity.this,ScanActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    Intent nextScreen = new Intent(MainActivity.this, ScanActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
     nextScreen.putExtras(bundle);
     startActivity(nextScreen);
     finish();
@@ -415,15 +406,16 @@ public class MainActivity extends Activity {
 
     //home
     u.setHome(menu.findItem(R.id.action_home));
-    u.changeMenuItemState(u.getHome(),false,true,false);
+    u.changeMenuItemState(u.getHome(), false, true, false);
 
     u.setBarCode(menu.findItem(R.id.action_barcode));
-    u.changeMenuItemState(u.getBarCode(),true,false,true);
+    u.changeMenuItemState(u.getBarCode(), true, false, true);
 
     u.setFlash(menu.findItem(R.id.action_flash));
-    u.changeMenuItemState(u.getFlash(),true,false,true);
+    u.changeMenuItemState(u.getFlash(), true, false, true);
     return true;
   }
+
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -452,23 +444,25 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
   }
+
   @Override
   public void onBackPressed() {
     MainActivity.super.onBackPressed();
   }
+
   @Override
   protected void onDestroy() {
 
     int status;
 
-    Trunk trunk = (Trunk)spnTrunk.getSelectedItem();
+    Trunk trunk = (Trunk) spnTrunk.getSelectedItem();
 
     // Create object of SharedPreferences.
-    SharedPreferences sharedPref= getApplicationContext().getSharedPreferences("ScanSist",MODE_PRIVATE);
+    SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("ScanSist", MODE_PRIVATE);
     //now get Editor
-    SharedPreferences.Editor editor= sharedPref.edit();
+    SharedPreferences.Editor editor = sharedPref.edit();
 
-    if (mDate!=null) {
+    if (mDate != null) {
       //hh 12hour format - HH 24 hr format
       SimpleDateFormat scan_sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.UK);
       String scanDateTime = scan_sdf.format(mDate);
@@ -481,20 +475,20 @@ public class MainActivity extends Activity {
     switch (rBg.getCheckedRadioButtonId()) {
 
       case R.id.rBtnFromHub:
-        status=0;
+        status = 0;
         break;
       case R.id.rBtnToHub:
-        status=1;
+        status = 1;
         break;
       case R.id.rBtnOntoDelivery:
-        status=2;
+        status = 2;
         break;
       default:
-        status=0;
+        status = 0;
         break;
     }
 
-    editor.putInt("status",status);
+    editor.putInt("status", status);
     editor.apply();
     MyAsyncBus.getInstance().unregister(this);
     super.onDestroy();
@@ -514,54 +508,52 @@ public class MainActivity extends Activity {
       }
     } else {
       //Upload file
-      if (tm.getLine1Number() != null) {
-        tmLineNumber = "" + tm.getLine1Number();
+      SimpleDateFormat sdf = new SimpleDateFormat("EEEE MMM dd yyyy, hh:mm:ss aa", Locale.UK);
+      licencedatetime = sdf.format(new Date());
+      SimpleDateFormat reg_sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm", Locale.UK);
+      regdatetime = reg_sdf.format(new Date());
+
+      /* todo
+
+      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+        readTelephoneDetails(true);
       } else {
-        tmLineNumber = "";
+
+        if (checkSelfPermission(Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+          // TODO: Consider calling
+          //    Activity#requestPermissions
+          // here to request the missing permissions, and then overriding
+          //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+          //                                          int[] grantResults)
+          // to handle the case where the user grants the permission. See the documentation
+          // for Activity#requestPermissions for more details.
+          readTelephoneDetails(false);
+        } else {
+          readTelephoneDetails(true);
+        }
       }
-      if (tm.getNetworkOperator() != null) {
-        tmNetworkOperator = tm.getNetworkOperator();
-      } else {
-        tmNetworkOperator = "";
-      }
-      if (tm.getNetworkOperatorName() != null) {
-        tmNetworkOperatorName = tm.getNetworkOperatorName();
-      } else {
-        tmNetworkOperatorName = "";
-      }
-      if (tm.getSimOperator() != null) {
-        tmSimOperator = tm.getSimOperator();
-      } else {
-        tmSimOperator = "";
-      }
-      if (tm.getSimOperatorName() != null) {
-        tmSimOperatorName = tm.getSimOperatorName();
-      } else {
-        tmSimOperatorName = "";
-      }
-      if (tm.getCellLocation() != null) {
-        tmCellLocation = tm.getCellLocation().toString();
-      } else {
-        tmCellLocation = "";
-      }
+      */
+      readTelephoneDetails(true);
+
+
       String simInfo;
-      simInfo = "Serial: "     + tmSerial
-              + "\nTel: "          + tmLineNumber
-              + "\nNetwork: "      + tmNetworkOperator
-              + "\nName: "         + tmNetworkOperatorName
-              + "\nSimOp: "        + tmSimOperator
-              + "\nSimOpName: "    + tmSimOperatorName
-              + "\nCellLocation: " + tmCellLocation
-              + "\nDeviceId: "     + tmDevice
-              + "\nAndroidId: "    + androidId
-              + "\nRegDateTime: "  + licencedatetime
-              + "\nScanSistIsDeleted: false"
-              + "\nCompanyID: " + mCompanyID;
+      simInfo = "Serial: " + tmSerial
+          + "\nTel: " + tmLineNumber
+          + "\nNetwork: " + tmNetworkOperator
+          + "\nName: " + tmNetworkOperatorName
+          + "\nSimOp: " + tmSimOperator
+          + "\nSimOpName: " + tmSimOperatorName
+          + "\nCellLocation: " + tmCellLocation
+          + "\nDeviceId: " + tmDevice
+          + "\nAndroidId: " + androidId
+          + "\nRegDateTime: " + licencedatetime
+          + "\nScanSistIsDeleted: false"
+          + "\nCompanyID: " + mCompanyID;
       new FTPFileUploadTask().execute("www.movesist.com",
-              "clients",
-              "wdrcv227qt",
-              simInfo,
-              deviceFilePath);
+          "clients",
+          "wdrcv227qt",
+          simInfo,
+          deviceFilePath);
     }
   }
 
@@ -573,19 +565,19 @@ public class MainActivity extends Activity {
       u.displayMessage(context, "Registration Failed.");
     } else {
       new RegisterScanSistTask().execute(tmSerial
-              , tmLineNumber
-              , tmNetworkOperator
-              , tmNetworkOperatorName
-              , tmSimOperator
-              , tmSimOperatorName
-              , tmCellLocation
-              , tmDevice
-              , androidId
-              , deviceUu + ".html"
-              , regdatetime
-              , "false"
-              , mCompanyID
-              , "7");
+          , tmLineNumber
+          , tmNetworkOperator
+          , tmNetworkOperatorName
+          , tmSimOperator
+          , tmSimOperatorName
+          , tmCellLocation
+          , tmDevice
+          , androidId
+          , deviceUu + ".html"
+          , regdatetime
+          , "false"
+          , mCompanyID
+          , "7");
     }
 
   }
@@ -600,9 +592,10 @@ public class MainActivity extends Activity {
       u.displayMessage(context, "Registration Completed\n\n" + "Warning - ScanSist™ not added to MoveSist™ database");
     }
     //licence ok so download data
-    new DownloadDataTask().execute("https://www.movesist.com/data/scansists/?CompanyID=" + mCompanyID +"&getType=3&AndroidId=" + androidId);
+    new DownloadDataTask().execute("https://www.movesist.com/data/scansists/?CompanyID=" + mCompanyID + "&getType=3&AndroidId=" + androidId);
     new DownloadTrunkDataTask().execute(downloadtrunkdata);
   }
+
   @Subscribe
   public void onDownloadTaskResultEvent(DownloadDataTaskResultEvent event) {
     delaydialogueClose(false);
@@ -634,25 +627,26 @@ public class MainActivity extends Activity {
       u.displayMessage(context, "Warning - No ScanSist™ Registration Data Available.");
     }
   }
+
   @Subscribe
   public void onDownloadTrunkTaskResultEvent(DownloadTrunkDataTaskResultEvent event) {
     delaydialogueClose(false);
     //progressDialog.dismiss();
     boolean wasEmpty = false;
-    if (event.getResult()!=null) {
+    if (event.getResult() != null) {
       if (u.trunks.isEmpty()) {
         wasEmpty = true;
       }
       u.trunkAdapter = new ListTrunkAdapter(u);
       u.trunks.clear();
       u.trunkAdapter.notifyDataSetChanged();
-      Trunk defaultEntry = new Trunk(0,"Select a Trunk");
+      Trunk defaultEntry = new Trunk(0, "Select a Trunk");
       u.trunks.add(defaultEntry);
       try {
         JSONArray data_array = new JSONArray(event.getResult());
         for (int i = 0; i < data_array.length(); i++) {
           JSONObject obj = new JSONObject(data_array.get(i).toString());
-          Trunk add = new Trunk(obj.getInt("TrunkNumber"),obj.getString("TrunkDescription"));
+          Trunk add = new Trunk(obj.getInt("TrunkNumber"), obj.getString("TrunkDescription"));
           u.trunks.add(add);
         }
         u.trunkAdapter.notifyDataSetChanged();
@@ -662,18 +656,19 @@ public class MainActivity extends Activity {
     } else {
       u.displayMessage(context, "Warning - No ScanSist™ Trunk Data available.");
     }
-    SharedPreferences sharedPref= getApplicationContext().getSharedPreferences("ScanSist",MODE_PRIVATE);
+    SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("ScanSist", MODE_PRIVATE);
     setupTrunkSpinner(sharedPref);
     u.saveTrunks();
   }
-  private TextView setProgressTitle (){
+
+  private TextView setProgressTitle() {
     // Create a TextView programmatically.
     TextView tv = new TextView(context);
 
     // Set the layout parameters for TextView
     RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
-            WindowManager.LayoutParams.WRAP_CONTENT, // Width of TextView
-            RelativeLayout.LayoutParams.WRAP_CONTENT); // Height of TextView
+        WindowManager.LayoutParams.WRAP_CONTENT, // Width of TextView
+        RelativeLayout.LayoutParams.WRAP_CONTENT); // Height of TextView
     tv.setLayoutParams(lp);
     tv.setPadding(15, 10, 15, 10);
     tv.setGravity(Gravity.CENTER);
@@ -683,6 +678,54 @@ public class MainActivity extends Activity {
     tv.setBackgroundColor(Color.DKGRAY);
     return tv;
   }
+
+  private void readTelephoneDetails(boolean canReadPhoneSate) {
+
+    tm = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
+    if (canReadPhoneSate && tm != null && tm.getDeviceId() != null) {
+      tmDevice = "" + tm.getDeviceId();
+    } else {
+      tmDevice = "";
+    }
+    if (canReadPhoneSate && tm != null && tm.getSimSerialNumber() != null) {
+      tmSerial = "" + tm.getSimSerialNumber();
+    } else {
+      tmSerial = "";
+    }
+    if (canReadPhoneSate && tm.getLine1Number() != null) {
+      tmLineNumber = "" + tm.getLine1Number();
+    } else {
+      tmLineNumber = "";
+    }
+    if (tm.getNetworkOperator() != null) {
+      tmNetworkOperator = tm.getNetworkOperator();
+    } else {
+      tmNetworkOperator = "";
+    }
+    if (tm.getNetworkOperatorName() != null) {
+      tmNetworkOperatorName = tm.getNetworkOperatorName();
+    } else {
+      tmNetworkOperatorName = "";
+    }
+    if (tm.getSimOperator() != null) {
+      tmSimOperator = tm.getSimOperator();
+    } else {
+      tmSimOperator = "";
+    }
+    if (tm.getSimOperatorName() != null) {
+      tmSimOperatorName = tm.getSimOperatorName();
+    } else {
+      tmSimOperatorName = "";
+    }
+    if (canReadPhoneSate && tm.getCellLocation() != null) {
+      tmCellLocation = tm.getCellLocation().toString();
+    } else {
+      tmCellLocation = "";
+    }
+
+  }
+
+
   private String getVersionName(Context context) {
     try {
       PackageInfo pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_META_DATA);

@@ -40,8 +40,11 @@ class DownloadTrunkDataTask extends AsyncTask<String, Void, String> {
     } catch (Exception e) {
       e.printStackTrace();
     }
-    return response.toString();
-
+    if (response != null) {
+      return response.toString();
+    } else {
+      return "";
+    }
   }
 
   @Override
