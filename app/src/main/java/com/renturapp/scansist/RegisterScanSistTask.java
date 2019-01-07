@@ -44,7 +44,7 @@ class RegisterScanSistTask extends AsyncTask<String, Void, Boolean> {
       nameValuePairs.add(new BasicNameValuePair("postType",params[13]));
 
       try {
-        HttpClient httpclient = new DefaultHttpClient();
+        HttpClient httpclient = new CustomHttpClient();
         HttpPost httppost = new HttpPost("https://www.movesist.com/data/scansists/");
         httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
         HttpResponse response = httpclient.execute(httppost);

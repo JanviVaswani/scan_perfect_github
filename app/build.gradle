@@ -23,8 +23,9 @@ android {
     //2018-03-09 New Version 7 - 1.6 "deviceFullPath backslash escape removed from url"
     //2018-11-14 New Version 8 - 1.7 "u not instance move to start of code"
     //2018-12-11 New Version 9 - 1.8 "Editable trunks"
-    versionCode 9
-    versionName "1.8"
+    //2018-01-07 New Version 10- 1.9 "https classes added to register new devices"
+    versionCode 10
+    versionName "1.9"
         //testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     signingConfig signingConfigs.config
   }

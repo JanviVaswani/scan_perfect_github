@@ -1,6 +1,5 @@
 package com.renturapp.scansist;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -13,7 +12,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -65,12 +63,12 @@ public class MainActivity extends Activity {
   private String tmSerial;
   private String androidId;
   private String regdatetime;
-  private String licencedatetime;
+  String licencedatetime;
   private String downloadtrunkdata = "";
   private TelephonyManager tm = null;
   private static boolean uploadregfile = false;
   private static String mCompanyID = "2";
-  private static boolean localData = false;
+  static boolean localData = false;
   private Utility u;
 
   private Calendar myCalendar;
@@ -513,13 +511,12 @@ public class MainActivity extends Activity {
       SimpleDateFormat reg_sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm", Locale.UK);
       regdatetime = reg_sdf.format(new Date());
 
-      /* todo
+      /*TODO:
 
       if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
         readTelephoneDetails(true);
       } else {
-
-        if (checkSelfPermission(Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
           // TODO: Consider calling
           //    Activity#requestPermissions
           // here to request the missing permissions, and then overriding
@@ -531,8 +528,8 @@ public class MainActivity extends Activity {
         } else {
           readTelephoneDetails(true);
         }
-      }
-      */
+      }*/
+
       readTelephoneDetails(true);
 
 
