@@ -1,12 +1,16 @@
 package com.renturapp.scansist;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 
 import android.content.res.Configuration;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
@@ -65,7 +69,12 @@ public class ScanActivity extends Activity implements
       }
       if (result.getText().equals(lastText)) {
         // Prevent duplicate scans
-        if (scanCount == 1) {
+        String stringCount = String.valueOf(scanCount);
+
+        if (stringCount.equals("0") || stringCount.length()>1 && stringCount.substring(stringCount.length() - 1).equals("0")) {
+          if (stringCount.equals("0")) {
+            u.displayMessage(context,"ScanSist™\nBarcode [" + result.getText() + "]\nAlready Scanned!");
+          }
           beepManager.playBeepSoundAndVibrate();
         }
         scanCount++;
@@ -78,18 +87,15 @@ public class ScanActivity extends Activity implements
           cs.getSelectedView().setEnabled(true);
           cs.setEnabled(true);
           cs.setAlpha(1f);
-          setNextFinish(true);
+          setNextFinish(u.isOnline());
           //hh 12hour format - HH 24 hr format
           SimpleDateFormat scan_sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.UK);
           String scanDateTime = scan_sdf.format(new Date());
 
-          if (u.scanAdapter.getCount() == 0) {
+           if (u.scanAdapter.getCount() == 0) {
             beepManager.playBeepSoundAndVibrate();
-            u.scans.add(new Scan(1, 0, "    ", lastText, scanDateTime));
-            u.scanAdapter.notifyDataSetChanged();
-            scanCount = 0;
-            updateScanInfo(scanCount);
-          } else {
+            saveScan(scanDateTime);
+           } else {
             //has it already been scaned!
             boolean alreadyScanned = false;
             for (Scan s : u.scans) {
@@ -110,11 +116,7 @@ public class ScanActivity extends Activity implements
               beepManager.playBeepSoundAndVibrate();
               //title.setTextColor(Color.BLACK);
               setSpnClause(0);
-              u.scans.add(new Scan(u.scans.size()+1, 0, "    ", lastText, scanDateTime));
-              u.scanAdapter.notifyDataSetChanged();
-              scanCount = 0;
-              updateScanInfo(scanCount);
-              u.sortScans();
+              saveScan(scanDateTime);
             }
           }
         } else {
@@ -131,6 +133,18 @@ public class ScanActivity extends Activity implements
     public void possibleResultPoints(List<ResultPoint> resultPoints) {
     }
   };
+
+  private void saveScan(String scanDateTime) {
+
+    u.scans.add(new Scan(u.scans.size()+1, 0, "    ", lastText, scanDateTime));
+    u.scanAdapter.notifyDataSetChanged();
+    u.saveScans();
+    scanCount = 0;
+    updateScanInfo(scanCount);
+    u.sortScans();
+
+  }
+
   private void setNextFinish(Boolean enabled){
     if(enabled) {
       btnNext.setClickable(true);
@@ -209,18 +223,7 @@ public class ScanActivity extends Activity implements
     mManifestDate = scanDateTime.substring(0,10);
     /* End of setup             */
 
-    String scansJson = sharedPref.getString("scans", "NothingFound");
-
-    if (!scansJson.equals("NothingFound")) {
-      u.setupScans(scansJson);
-      if (u.scanAdapter.getCount()>0) {
-        setNextFinish(true);
-      } else {
-        setNextFinish(false);
-      }
-    } else {
-      setNextFinish(false);
-    }
+    setNextFinish(u.HasScans(sharedPref) && u.isOnline() );
 
     spnClause= (Spinner) findViewById(R.id.spnClause);
     spnClause.setVisibility(View.VISIBLE);
@@ -377,13 +380,29 @@ public class ScanActivity extends Activity implements
   protected void onResume() {
     super.onResume();
     barcodeView.resume();
+    registerReceiver(networkStateReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
   }
 
   @Override
   protected void onPause() {
     super.onPause();
     barcodeView.pause();
+    unregisterReceiver(networkStateReceiver);
   }
+
+  private BroadcastReceiver networkStateReceiver=new BroadcastReceiver() {
+    @Override
+    public void onReceive(Context context, Intent intent) {
+      ConnectivityManager cm =
+          (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+      if (cm != null && cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnectedOrConnecting()) {
+        SharedPreferences sharedPref= getApplicationContext().getSharedPreferences("ScanSist",MODE_PRIVATE);
+        setNextFinish(u.HasScans(sharedPref));
+      } else {
+        setNextFinish(false);
+      }
+    }
+  };
 
   public void pause(View view) {
     barcodeView.pause();

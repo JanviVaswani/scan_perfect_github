@@ -89,172 +89,172 @@ public class MainActivity extends Activity {
 
     u = (Utility) getApplicationContext();
 
-    if (!isOnline()) {
+    SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("ScanSist", MODE_PRIVATE);
+    Boolean hasScansToProcess = u.HasScans(sharedPref);
 
+    if (!u.isOnline() && !hasScansToProcess) {
       u.displayMessage(context, "No Internet connection.\n\nLicence cannot be verified.");
       MainActivity.super.onBackPressed();
-    }
-    //New instance is set to null
-    progressDialog = null;
-    //Debug Mode no Licence check
-    Boolean debugMode = false;
-    if (debugMode) {
-      u.displayMessage(context, "ScanSist™ - Trial Application - Please wait.");
-    }
-
-    SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("ScanSist", MODE_PRIVATE);
-
-    /*
-     *
-     *
-     *   Register ScanSist App
-     *
-     *
-     *                          */
-    Intent intent = getIntent();
-    androidId = "" + android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
-    if (!localData) {
-      downloadtrunkdata = "https://www.movesist.com/data/trunks/?CompanyID=" + mCompanyID + "&getType=7&AndroidId=" + androidId;
     } else {
-      downloadtrunkdata = "http://192.168.0.5/data/trunks/?CompanyID=" + mCompanyID + "&getType=7&AndroidId=" + androidId;
-    }
-    // getting attached intent data
-    Boolean previousPressed = intent.getBooleanExtra("onBackPressed", false);
-    /* Called when the activity is first created. */
-    if (!previousPressed) {
-
-      deviceUu = "scansist_" + mcompany + "_" + androidId;
-
-      String deviceFullPath = "https://www.movesist.com/clients/" + mcompany + "/users/scansist/" + deviceUu + "_p.html";
-      deviceFilePath = "/" + mcompany + "/users/scansist/" + deviceUu + "_p.html";
-
-      //Must use default preference file!
-      String deviceUuPref = PreferenceManager.getDefaultSharedPreferences(context).getString("RegKey", "NothingFound");
-      if (deviceUuPref.equals("NothingFound")) {
-
-        //Do we need to upload a file
-        progressDialog = new ProgressDialog(context);
-        progressDialog.setCustomTitle(setProgressTitle());
-        progressDialog.setMessage("Registering Licence - v" + getVersionName(context) + "\n\n         Please wait.");
-        progressDialog.setIndeterminate(true);
-        progressDialog.setCancelable(false);
-        progressDialog.show();
-        uploadregfile = true;
-        new CheckLicenceTask().execute(deviceFullPath);
+      //New instance is set to null
+      progressDialog = null;
+      //Debug Mode no Licence check
+      Boolean debugMode = false;
+      if (debugMode) {
+        u.displayMessage(context, "ScanSist™ - Trial Application - Please wait.");
+      }
+      /*
+       *
+       *
+       *   Register ScanSist App
+       *
+       *
+       *                          */
+      Intent intent = getIntent();
+      androidId = "" + android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+      if (!localData) {
+        downloadtrunkdata = "https://www.movesist.com/data/trunks/?CompanyID=" + mCompanyID + "&getType=7&AndroidId=" + androidId;
       } else {
-        if (!isOnline()) {
+        downloadtrunkdata = "http://192.168.0.5/data/trunks/?CompanyID=" + mCompanyID + "&getType=7&AndroidId=" + androidId;
+      }
+      // getting attached intent data
+      Boolean previousPressed = intent.getBooleanExtra("onBackPressed", false);
+      /* Called when the activity is first created. */
+      if (!previousPressed && !hasScansToProcess) {
 
-          u.displayMessage(context, "No Internet connection.\n\nLicence cannot be verified.");
-          MainActivity.super.onBackPressed();
-        } else {
-          //Check for the occurrence of the file that is shown in the saved registration key adding a '_p' will ensure it runs once registered
-          String deviceRegFullPath = "https://www.movesist.com/clients/" + mcompany + "/users/scansist/" + deviceUuPref + "_p.html";
+        deviceUu = "scansist_" + mcompany + "_" + androidId;
+
+        String deviceFullPath = "https://www.movesist.com/clients/" + mcompany + "/users/scansist/" + deviceUu + "_p.html";
+        deviceFilePath = "/" + mcompany + "/users/scansist/" + deviceUu + "_p.html";
+
+        //Must use default preference file!
+        String deviceUuPref = PreferenceManager.getDefaultSharedPreferences(context).getString("RegKey", "NothingFound");
+        if (deviceUuPref.equals("NothingFound")) {
+
+          //Do we need to upload a file
           progressDialog = new ProgressDialog(context);
           progressDialog.setCustomTitle(setProgressTitle());
-          progressDialog.setMessage("Checking Licence - v" + getVersionName(context) + "\n\n    Company (" + mcompany + ")\n\n         Please wait.");
+          progressDialog.setMessage("Registering Licence - v" + getVersionName(context) + "\n\n         Please wait.");
           progressDialog.setIndeterminate(true);
           progressDialog.setCancelable(false);
           progressDialog.show();
-          new CheckLicenceTask().execute(deviceRegFullPath);
-          uploadregfile = false;
+          uploadregfile = true;
+          new CheckLicenceTask().execute(deviceFullPath);
+        } else {
+          if (!u.isOnline()) {
+
+            u.displayMessage(context, "No Internet connection.\n\nLicence cannot be verified.");
+            MainActivity.super.onBackPressed();
+          } else {
+            //Check for the occurrence of the file that is shown in the saved registration key adding a '_p' will ensure it runs once registered
+            String deviceRegFullPath = "https://www.movesist.com/clients/" + mcompany + "/users/scansist/" + deviceUuPref + "_p.html";
+            progressDialog = new ProgressDialog(context);
+            progressDialog.setCustomTitle(setProgressTitle());
+            progressDialog.setMessage("Checking Licence - v" + getVersionName(context) + "\n\n    Company (" + mcompany + ")\n\n         Please wait.");
+            progressDialog.setIndeterminate(true);
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+            new CheckLicenceTask().execute(deviceRegFullPath);
+            uploadregfile = false;
+          }
         }
-      }
-    } else {
-      String trunksJson = sharedPref.getString("trunks", "NothingFound");
-      if (!trunksJson.equals("NothingFound")) {
-        if (u.trunkAdapter == null) {
-          u.trunkAdapter = new ListTrunkAdapter(u);
-        }
-        u.setupTrunks(trunksJson);
-        setupTrunkSpinner(sharedPref);
       } else {
-        //May have just finished so reload
-        new DownloadTrunkDataTask().execute(downloadtrunkdata);
-      }
-    }
-    /*
-     *
-     *
-     *     End of ScanSist registration checking
-     *
-     *
-     *                                              */
-
-    MyAsyncBus.getInstance().register(this);
-
-    if (u.scanAdapter == null) {
-      u.scanAdapter = new ListScanAdapter(u);
-    }
-
-    btnNext = (Button) findViewById(R.id.btnNext);
-    btnNext.setClickable(false);
-    btnNext.setAlpha(0.5f);
-
-
-    myCalendar = Calendar.getInstance();
-
-    dateText = (EditText) findViewById(R.id.txtManifestDate);
-    date = new DatePickerDialog.OnDateSetListener() {
-
-      @Override
-      public void onDateSet(DatePicker view, int year, int monthOfYear,
-                            int dayOfMonth) {
-        // TODO Auto-generated method stub
-        myCalendar.set(Calendar.YEAR, year);
-        myCalendar.set(Calendar.MONTH, monthOfYear);
-        myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-        updateLabel();
-      }
-
-    };
-
-    dateText.setOnClickListener(new View.OnClickListener() {
-
-      @Override
-      public void onClick(View v) {
-        // TODO Auto-generated method stub
-        new DatePickerDialog(context, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT, date, myCalendar
-            .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
-            myCalendar.get(Calendar.DAY_OF_MONTH)).show();
-
-        if (mDate != null) {
-          myCalendar.setTime(mDate);
+        String trunksJson = sharedPref.getString("trunks", "NothingFound");
+        if (!trunksJson.equals("NothingFound")) {
+          if (u.trunkAdapter == null) {
+            u.trunkAdapter = new ListTrunkAdapter(u);
+          }
+          u.setupTrunks(trunksJson);
+          setupTrunkSpinner(sharedPref);
+        } else {
+          //May have just finished so reload
+          new DownloadTrunkDataTask().execute(downloadtrunkdata);
         }
-        u.hideKeyboard(context);
       }
-    });
+      /*
+       *
+       *
+       *     End of ScanSist registration checking
+       *
+       *
+       *                                              */
 
-    // Create object of SharedPreferences.
-    //SharedPreferences sharedPref= getApplicationContext().getSharedPreferences("ScanSist",MODE_PRIVATE);
-    String scanDateTime = sharedPref.getString("scanDateTime", "NothingFound");
+      MyAsyncBus.getInstance().register(this);
 
-    if (!scanDateTime.equals("NothingFound")) {
-      SimpleDateFormat scan_sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.UK);
-      try {
-        mDate = scan_sdf.parse(scanDateTime);
-        String myFormat = "dd/MM/yy"; //In which you need put here
-        SimpleDateFormat sdf_scan = new SimpleDateFormat(myFormat, Locale.UK);
-        dateText.setText(sdf_scan.format(mDate));
-      } catch (Exception e) {
-        e.printStackTrace();
+      //if (u.scanAdapter == null) {
+      //u.scanAdapter = new ListScanAdapter(u);
+      //}
+
+      btnNext = (Button) findViewById(R.id.btnNext);
+      btnNext.setClickable(false);
+      btnNext.setAlpha(0.5f);
+
+
+      myCalendar = Calendar.getInstance();
+
+      dateText = (EditText) findViewById(R.id.txtManifestDate);
+      date = new DatePickerDialog.OnDateSetListener() {
+
+        @Override
+        public void onDateSet(DatePicker view, int year, int monthOfYear,
+                              int dayOfMonth) {
+          // TODO Auto-generated method stub
+          myCalendar.set(Calendar.YEAR, year);
+          myCalendar.set(Calendar.MONTH, monthOfYear);
+          myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+          updateLabel();
+        }
+
+      };
+
+      dateText.setOnClickListener(new View.OnClickListener() {
+
+        @Override
+        public void onClick(View v) {
+          // TODO Auto-generated method stub
+          new DatePickerDialog(context, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT, date, myCalendar
+              .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+              myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+
+          if (mDate != null) {
+            myCalendar.setTime(mDate);
+          }
+          u.hideKeyboard(context);
+        }
+      });
+
+      // Create object of SharedPreferences.
+      //SharedPreferences sharedPref= getApplicationContext().getSharedPreferences("ScanSist",MODE_PRIVATE);
+      String scanDateTime = sharedPref.getString("scanDateTime", "NothingFound");
+
+      if (!scanDateTime.equals("NothingFound")) {
+        SimpleDateFormat scan_sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.UK);
+        try {
+          mDate = scan_sdf.parse(scanDateTime);
+          String myFormat = "dd/MM/yy"; //In which you need put here
+          SimpleDateFormat sdf_scan = new SimpleDateFormat(myFormat, Locale.UK);
+          dateText.setText(sdf_scan.format(mDate));
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
       }
-    }
 
-    int status = sharedPref.getInt("status", -1);
+      int status = sharedPref.getInt("status", -1);
 
-    if (status != -1) {
-      setRadioButton(status);
-    }
-    if (u.clauses.isEmpty()) {
-      u.setupClauses(((RadioGroup) findViewById(R.id.rBtnG)).getCheckedRadioButtonId());
-    }
+      if (status != -1) {
+        setRadioButton(status);
+      }
+      if (u.clauses.isEmpty()) {
+        u.setupClauses(((RadioGroup) findViewById(R.id.rBtnG)).getCheckedRadioButtonId());
+      }
 
-    String scansJson = sharedPref.getString("scans", "NothingFound");
+      //String scansJson = sharedPref.getString("scans", "NothingFound");
 
-    if (!scansJson.equals("NothingFound")) {
-      u.setupScans(scansJson);
+      //if (!scansJson.equals("NothingFound")) {
+      //  u.setupScans(scansJson);
+      //}
+      setBtnNextEnable();
     }
-    setBtnNextEnable();
   }
 
   // very important when rotating !!! http://stackoverflow.com/questions/456211/activity-restart-on-rotation-android
@@ -453,42 +453,45 @@ public class MainActivity extends Activity {
 
     int status;
 
-    Trunk trunk = (Trunk) spnTrunk.getSelectedItem();
+    if (spnTrunk != null) {
 
-    // Create object of SharedPreferences.
-    SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("ScanSist", MODE_PRIVATE);
-    //now get Editor
-    SharedPreferences.Editor editor = sharedPref.edit();
+      Trunk trunk = (Trunk) spnTrunk.getSelectedItem();
 
-    if (mDate != null) {
-      //hh 12hour format - HH 24 hr format
-      SimpleDateFormat scan_sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.UK);
-      String scanDateTime = scan_sdf.format(mDate);
-      editor.putString("scanDateTime", scanDateTime);
+      // Create object of SharedPreferences.
+      SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("ScanSist", MODE_PRIVATE);
+      //now get Editor
+      SharedPreferences.Editor editor = sharedPref.edit();
+
+      if (mDate != null) {
+        //hh 12hour format - HH 24 hr format
+        SimpleDateFormat scan_sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.UK);
+        String scanDateTime = scan_sdf.format(mDate);
+        editor.putString("scanDateTime", scanDateTime);
+      }
+      editor.putInt("trunkNumber", trunk.trunkNumber);
+
+      RadioGroup rBg = (RadioGroup) findViewById(R.id.rBtnG);
+
+      switch (rBg.getCheckedRadioButtonId()) {
+
+        case R.id.rBtnFromHub:
+          status = 0;
+          break;
+        case R.id.rBtnToHub:
+          status = 1;
+          break;
+        case R.id.rBtnOntoDelivery:
+          status = 2;
+          break;
+        default:
+          status = 0;
+          break;
+      }
+
+      editor.putInt("status", status);
+      editor.apply();
+      MyAsyncBus.getInstance().unregister(this);
     }
-    editor.putInt("trunkNumber", trunk.trunkNumber);
-
-    RadioGroup rBg = (RadioGroup) findViewById(R.id.rBtnG);
-
-    switch (rBg.getCheckedRadioButtonId()) {
-
-      case R.id.rBtnFromHub:
-        status = 0;
-        break;
-      case R.id.rBtnToHub:
-        status = 1;
-        break;
-      case R.id.rBtnOntoDelivery:
-        status = 2;
-        break;
-      default:
-        status = 0;
-        break;
-    }
-
-    editor.putInt("status", status);
-    editor.apply();
-    MyAsyncBus.getInstance().unregister(this);
     super.onDestroy();
   }
 
@@ -730,12 +733,6 @@ public class MainActivity extends Activity {
     } catch (PackageManager.NameNotFoundException e) {
       return "";
     }
-  }
-
-  private boolean isOnline() {
-    ConnectivityManager cm =
-        (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-    return cm != null && cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnectedOrConnecting();
   }
 
   private void delaydialogueClose(final Boolean goBack) {
