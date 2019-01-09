@@ -383,6 +383,7 @@ public class MainActivity extends Activity {
     bundle.putInt("status", status);
     Trunk trunk = (Trunk) spnTrunk.getSelectedItem();
     bundle.putInt("trunkNumber", trunk.trunkNumber);
+    bundle.putString("trunkDescription", trunk.trunkDescription);
 
     if (mDate != null) {
       //hh 12hour format - HH 24 hr format
@@ -469,7 +470,6 @@ public class MainActivity extends Activity {
         editor.putString("scanDateTime", scanDateTime);
       }
       editor.putInt("trunkNumber", trunk.trunkNumber);
-
       RadioGroup rBg = (RadioGroup) findViewById(R.id.rBtnG);
 
       switch (rBg.getCheckedRadioButtonId()) {

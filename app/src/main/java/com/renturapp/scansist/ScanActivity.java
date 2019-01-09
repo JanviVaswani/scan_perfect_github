@@ -69,7 +69,7 @@ public class ScanActivity extends Activity implements
       }
       if (result.getText().equals(lastText)) {
         // Prevent duplicate scans
-        String stringCount = String.valueOf(scanCount);
+        String stringCount = Integer.toString(scanCount);
 
         if (stringCount.equals("0") || stringCount.length()>1 && stringCount.substring(stringCount.length() - 1).equals("0")) {
           if (stringCount.equals("0")) {
@@ -190,7 +190,7 @@ public class ScanActivity extends Activity implements
     Boolean previousPressed  = intent.getBooleanExtra("onBackPressed",false);
     /* Called when the activity is first created. */
 
-    Integer status = intent.getIntExtra("status",-1);
+    int status = intent.getIntExtra("status",-1);
     if (status!=-1) {
       setTitleCode(status);
     } else {
@@ -201,8 +201,10 @@ public class ScanActivity extends Activity implements
     }
 
     int trunkNumber = intent.getIntExtra("trunkNumber", -1);
+
     if (trunkNumber!=-1) {
-      ((TextView) findViewById(R.id.lblScanTrunk)).setText("Trunk: " + Integer.toString(trunkNumber));
+      String trunkDescription = (String)intent.getStringExtra("trunkDescription");
+      ((TextView) findViewById(R.id.lblScanTrunk)).setText(trunkDescription);
 
     } else {
       trunkNumber = sharedPref.getInt("trunkNumber", 0);
