@@ -1,21 +1,31 @@
 package com.renturapp.scansist;
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.DownloadManager;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
@@ -38,11 +48,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
+import static android.content.ContentValues.TAG;
 import static java.lang.Integer.parseInt;
 
 
@@ -68,6 +81,8 @@ public class MainActivity extends Activity {
   private TelephonyManager tm = null;
   private static boolean uploadregfile = false;
   private static String mCompanyID = "2";
+  private static String mcompany = "demo";
+  private static String releaseDownloadUrl = "https://www.movesist.com/clients/" + mcompany + "/downloads/scansist/" + mcompany + "_scansist.apk";
   static boolean localData = false;
   private Utility u;
 
@@ -83,10 +98,8 @@ public class MainActivity extends Activity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
-    String mcompany = "demo";
     uploadregfile = false;
     context = MainActivity.this;
-
     u = (Utility) getApplicationContext();
 
     SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("ScanSist", MODE_PRIVATE);
@@ -504,8 +517,10 @@ public class MainActivity extends Activity {
         delaydialogueClose(true);
       } else {
         //licence ok so download data if required
-        new DownloadTrunkDataTask().execute(downloadtrunkdata);
+        //new DownloadTrunkDataTask().execute(downloadtrunkdata);
         delaydialogueClose(false);
+        new CheckReleaseTask().execute(releaseDownloadUrl);
+
       }
     } else {
       //Upload file
@@ -514,27 +529,7 @@ public class MainActivity extends Activity {
       SimpleDateFormat reg_sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm", Locale.UK);
       regdatetime = reg_sdf.format(new Date());
 
-      /*TODO:
-
-      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-        readTelephoneDetails(true);
-      } else {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-          // TODO: Consider calling
-          //    Activity#requestPermissions
-          // here to request the missing permissions, and then overriding
-          //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-          //                                          int[] grantResults)
-          // to handle the case where the user grants the permission. See the documentation
-          // for Activity#requestPermissions for more details.
-          readTelephoneDetails(false);
-        } else {
-          readTelephoneDetails(true);
-        }
-      }*/
-
       readTelephoneDetails(true);
-
 
       String simInfo;
       simInfo = "Serial: " + tmSerial
@@ -556,7 +551,28 @@ public class MainActivity extends Activity {
           deviceFilePath);
     }
   }
-
+  @Subscribe
+  public void onCheckReleaseTaskResultEvent(CheckReleaseTaskResultEvent event){
+    if (event.getResult()!=-1) {
+      Boolean updateRequired =  false;
+      final long webPackageUpdated = event.getResult();//getWebPackageUpdated();
+      final long appUpdatedOnDevice = getAppUpdatedOnDevice();
+      if (appUpdatedOnDevice != -1 && webPackageUpdated != -1) {
+        if (webPackageUpdated > appUpdatedOnDevice) {
+          updateRequired =  true;
+        }
+      }//else FAIL, try another day
+      if (updateRequired) {
+        triggerUpdate(context);
+      } else {
+        //Download ok and not required
+        new DownloadTrunkDataTask().execute(downloadtrunkdata);
+      }
+    } else {
+      //Download not available but still need trunks!
+      new DownloadTrunkDataTask().execute(downloadtrunkdata);
+    }
+  }
   @Subscribe
   public void onAsyncFTPFileUploadTaskResultEvent(FTPFileUploadTaskResultEvent event) {
 
@@ -741,14 +757,78 @@ public class MainActivity extends Activity {
     handler.postDelayed(new Runnable() {
       @Override
       public void run() {
-        // Do something after 2s = 2000ms
-        if (progressDialog!=null) {
-          progressDialog.dismiss();
-        }
-        if (goBack) {
-          onBackPressed();
-        }
+      // Do something after 2s = 2000ms
+      if (progressDialog!=null) {
+        progressDialog.dismiss();
+      }
+      if (goBack) {
+        onBackPressed();
+      }
       }
     }, 2000);
+  }
+  private long getAppUpdatedOnDevice() {
+    PackageInfo packageInfo = null;
+    try {
+      packageInfo = getPackageManager()
+              .getPackageInfo(getClass().getPackage().getName(), PackageManager.GET_PERMISSIONS);
+    } catch (PackageManager.NameNotFoundException e) {
+      Log.d(TAG,
+              "CANTHAPPEN: Failed to get package info for own package!");
+      return -1;
+    }
+    return packageInfo.lastUpdateTime;
+  }
+  protected void triggerUpdate(Context context) {
+
+    try {
+      //get destination to update file and set Uri
+      //TODO: First I wanted to store my update .apk file on internal storage for my app but apparently android does not allow you to open and install
+      //aplication with existing package from there. So for me, alternative solution is Download directory in external storage. If there is better
+      //solution, please inform us in comment
+      String destination = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/";
+      String fileName = mcompany + "_scansist.apk";
+      destination += fileName;
+      final Uri uri = Uri.parse("file://" + destination);
+
+      //Delete update file if exists
+      File file = new File(destination);
+      if (file.exists()) {
+        //file.delete() - test this, I think sometimes it doesnt work
+        file.delete();
+      }
+      //set downloadmanager
+      DownloadManager.Request request = new DownloadManager.Request(Uri.parse(releaseDownloadUrl));
+      request.setDescription("Latest Scansist™ Download");
+      request.setTitle("ScanSist™");
+
+      //set destination
+      request.setDestinationUri(uri);
+
+      // get download service and enqueue file
+      final DownloadManager manager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+      final long downloadId = manager.enqueue(request);
+
+      //set BroadcastReceiver to install app when .apk is downloaded
+      BroadcastReceiver onComplete = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+          Intent install = new Intent(Intent.ACTION_VIEW);
+          install.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+          install.setDataAndType(uri,
+                  manager.getMimeTypeForDownloadedFile(downloadId));
+          startActivity(install);
+          unregisterReceiver(this);
+          //This causes app crash!
+          //finish();
+        }
+      };
+      //register receiver for when .apk download is compete
+      registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+      new DownloadTrunkDataTask().execute(downloadtrunkdata);
+    } catch (Exception e) {
+      e.printStackTrace();
+      new DownloadTrunkDataTask().execute(downloadtrunkdata);
+    }
   }
 }
