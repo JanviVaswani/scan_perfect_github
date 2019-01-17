@@ -517,9 +517,9 @@ public class MainActivity extends Activity {
         delaydialogueClose(true);
       } else {
         //licence ok so download data if required
-        //new DownloadTrunkDataTask().execute(downloadtrunkdata);
+        new DownloadTrunkDataTask().execute(downloadtrunkdata);
         delaydialogueClose(false);
-        new CheckReleaseTask().execute(releaseDownloadUrl);
+        //new CheckReleaseTask().execute(releaseDownloadUrl);
 
       }
     } else {
