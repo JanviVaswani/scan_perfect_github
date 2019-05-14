@@ -80,8 +80,8 @@ public class MainActivity extends Activity {
   private String downloadtrunkdata = "";
   private TelephonyManager tm = null;
   private static boolean uploadregfile = false;
-  private static String mCompanyID = "2";
-  private static String mcompany = "demo";
+  private static String mCompanyID = "31";
+  private static String mcompany = "logisticsne";
   private static String releaseDownloadUrl = "https://www.movesist.com/clients/" + mcompany + "/downloads/scansist/" + mcompany + "_scansist.apk";
   static boolean localData = false;
   private Utility u;
