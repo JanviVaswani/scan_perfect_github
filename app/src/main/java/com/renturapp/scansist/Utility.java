@@ -229,7 +229,7 @@ public class Utility extends Application {
     }
   }
 
-  public void setupClauses(int Id) {
+  public void setupClauses(int status) {
 
     if (clauseAdapter == null) {
       clauseAdapter = new ListClauseAdapter(this);
@@ -237,8 +237,8 @@ public class Utility extends Application {
     if (!clauses.isEmpty()) {
       clauses.clear();
     }
-    switch (Id) {
-      case R.id.rBtnFromHub:
+    switch (status) {
+      case 0:
         clauses.add(new Clause(0, "    ", "Select a Clause for the Pallet/Parcel"));
         clauses.add(new Clause(6, "DBDD", "Damaged on Delivery At Depot"));
         clauses.add(new Clause(7, "DOAD", "Damaged on Arrival At Depot"));
@@ -249,13 +249,13 @@ public class Utility extends Application {
         clauses.add(new Clause(12, "PLTD", "Pallet Discrepancy"));
         clauses.add(new Clause(13, "SHRT", "Shortage"));
         break;
-      case R.id.rBtnToHub:
+      case 1:
         clauses.add(new Clause(0, "    ", "Select a Clause for the Pallet/Parcel"));
         clauses.add(new Clause(4, "DRFT", "Depot Removed From Trunk"));
         clauses.add(new Clause(5, "DACD", "Damaged on Collecting At Depot"));
         clauses.add(new Clause(10, "NOPW", "No Customer Paperwork"));
         break;
-      case R.id.rBtnOntoDelivery:
+      case 2:
         clauses.add(new Clause(0, "    ", "Select a Clause for the Pallet/Parcel"));
         clauses.add(new Clause(7, "DOAD", "Damaged on Arrival At Depot"));
         clauses.add(new Clause(10, "NOPW", "No Customer Paperwork"));

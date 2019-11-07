@@ -10,11 +10,12 @@ android {
       storePassword 'wdrcv227qt'
     }
   }
-  compileSdkVersion 15
+  compileSdkVersion 16
+  //buildToolsVersion "28.0.3"
   defaultConfig {
     applicationId "com.renturapp.scansist"
-    minSdkVersion 15
-    targetSdkVersion 15
+    minSdkVersion 16
+    targetSdkVersion 16
     //2018-05-17 New Version 2 - 1.1 with corrections to upload file
     //2018-05-17 New Version 3 - 1.2 "chmod 604 " + params[4]) removed
     //2018-05-18 New Version 4 - 1.3 "Manifest always included"
@@ -27,8 +28,9 @@ android {
     //2018-01-07 New Version 11- 1.10 "No need to check licence once scanning initiated"
     //2018-01-15 New Version 12- 1.11 "Check for latest version and install"
     //2018-01-15 New Version 13- 1.12 "Check updates removed"
-    versionCode 13
-    versionName "1.12"
+    //2019-11-07 New Version 14- 2.0  "test version and multi trunks"
+    versionCode 14
+    versionName "2.0"
         //testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     signingConfig signingConfigs.config
   }
@@ -55,10 +57,12 @@ android {
 }
 
 dependencies {
-  implementation fileTree(include: ['*.jar'], dir: 'libs')
   //https://github.com/journeyapps/zxing-android-embedded
   //implementation 'com.journeyapps:zxing-android-embedded:3.6.0@aar'
   implementation('com.journeyapps:zxing-android-embedded:3.6.0') { transitive = false }
   implementation 'com.google.zxing:core:3.3.2'
   implementation files('libs/commons-net-3.3.jar')
+  implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+
 }

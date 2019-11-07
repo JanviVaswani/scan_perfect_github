@@ -23,6 +23,7 @@
         android:theme="@style/RentUrAppTheme"
         android:hardwareAccelerated="true"
         android:name=".Utility">
+
         <activity android:name=".MainActivity"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize|screenLayout|uiMode"
             android:theme="@style/RentUrAppTheme">
@@ -38,6 +39,7 @@
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="fullSensor"
             tools:replace="screenOrientation" />
+
     </application>
 
 </manifest>

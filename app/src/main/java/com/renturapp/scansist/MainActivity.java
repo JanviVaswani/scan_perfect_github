@@ -41,6 +41,7 @@ import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
 
@@ -50,6 +51,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -58,10 +60,10 @@ import java.util.Locale;
 import static android.content.ContentValues.TAG;
 import static java.lang.Integer.parseInt;
 
-
 public class MainActivity extends Activity {
 
-  //Registration
+
+    //Registration
   private ProgressDialog progressDialog;
   private Context context;
   private String deviceUu;
@@ -80,12 +82,12 @@ public class MainActivity extends Activity {
   private String downloadtrunkdata = "";
   private TelephonyManager tm = null;
   private static boolean uploadregfile = false;
-  private static String mCompanyID = "31";
-  private static String mcompany = "logisticsne";
-  private static String releaseDownloadUrl = "https://www.movesist.com/clients/" + mcompany + "/downloads/scansist/" + mcompany + "_scansist.apk";
+  private static String mCompanyID = "2";
+  private static String mcompany = "demo";
+  private static String urlExtension = ".com";
+  private static String releaseDownloadUrl = "https://www.movesist" + urlExtension + "/clients/" + mcompany + "/downloads/scansist/" + mcompany + "_scansist.apk";
   static boolean localData = false;
   private Utility u;
-
   private Calendar myCalendar;
   private EditText dateText;
   private DatePickerDialog.OnDateSetListener date;
@@ -126,7 +128,7 @@ public class MainActivity extends Activity {
       Intent intent = getIntent();
       androidId = "" + android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
       if (!localData) {
-        downloadtrunkdata = "https://www.movesist.com/data/trunks/?CompanyID=" + mCompanyID + "&getType=7&AndroidId=" + androidId;
+        downloadtrunkdata = "https://www.movesist" + urlExtension + "/data/trunks/?CompanyID=" + mCompanyID + "&getType=7&AndroidId=" + androidId;
       } else {
         downloadtrunkdata = "http://192.168.0.5/data/trunks/?CompanyID=" + mCompanyID + "&getType=7&AndroidId=" + androidId;
       }
@@ -137,7 +139,7 @@ public class MainActivity extends Activity {
 
         deviceUu = "scansist_" + mcompany + "_" + androidId;
 
-        String deviceFullPath = "https://www.movesist.com/clients/" + mcompany + "/users/scansist/" + deviceUu + "_p.html";
+        String deviceFullPath = "https://www.movesist" + urlExtension + "/clients/" + mcompany + "/users/scansist/" + deviceUu + "_p.html";
         deviceFilePath = "/" + mcompany + "/users/scansist/" + deviceUu + "_p.html";
 
         //Must use default preference file!
@@ -160,7 +162,7 @@ public class MainActivity extends Activity {
             MainActivity.super.onBackPressed();
           } else {
             //Check for the occurrence of the file that is shown in the saved registration key adding a '_p' will ensure it runs once registered
-            String deviceRegFullPath = "https://www.movesist.com/clients/" + mcompany + "/users/scansist/" + deviceUuPref + "_p.html";
+            String deviceRegFullPath = "https://www.movesist" + urlExtension + "/clients/" + mcompany + "/users/scansist/" + deviceUuPref + "_p.html";
             progressDialog = new ProgressDialog(context);
             progressDialog.setCustomTitle(setProgressTitle());
             progressDialog.setMessage("Checking Licence - v" + getVersionName(context) + "\n\n    Company (" + mcompany + ")\n\n         Please wait.");
@@ -258,7 +260,7 @@ public class MainActivity extends Activity {
         setRadioButton(status);
       }
       if (u.clauses.isEmpty()) {
-        u.setupClauses(((RadioGroup) findViewById(R.id.rBtnG)).getCheckedRadioButtonId());
+        u.setupClauses(status);
       }
 
       //String scansJson = sharedPref.getString("scans", "NothingFound");
@@ -266,11 +268,12 @@ public class MainActivity extends Activity {
       //if (!scansJson.equals("NothingFound")) {
       //  u.setupScans(scansJson);
       //}
+
       setBtnNextEnable();
+
     }
   }
-
-  // very important when rotating !!! http://stackoverflow.com/questions/456211/activity-restart-on-rotation-android
+ // very important when rotating !!! http://stackoverflow.com/questions/456211/activity-restart-on-rotation-android
   @Override
   public void onConfigurationChanged(Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
@@ -290,38 +293,29 @@ public class MainActivity extends Activity {
 
   public void onRadioButtonClicked(View v) {
 
+    int trunkHub = hubStatus();
     setBtnNextEnable();
-    u.setupClauses(((RadioGroup) findViewById(R.id.rBtnG)).getCheckedRadioButtonId());
+    u.setupClauses(trunkHub);
+    new DownloadTrunkDataTask().execute(downloadtrunkdata + "&TrunkType=" + trunkHub);
+
   }
 
   public void onWizardButtonClicked(View v) {
-    RadioGroup mainGroup = (RadioGroup) findViewById(R.id.rBtnG);
 
     switch (v.getId()) {
-
       case R.id.btnPrevious:
         onBackPressed();
         break;
-
       case R.id.btnNext:
         // Check which radio button was clicked
-        switch (mainGroup.getCheckedRadioButtonId()) {
-          case R.id.rBtnFromHub:
-            selectPage(0);
-            break;
-          case R.id.rBtnToHub:
-            selectPage(1);
-            break;
-          case R.id.rBtnOntoDelivery:
-            selectPage(2);
-            break;
-        }
+        selectPage(hubStatus());
         break;
       case R.id.btnCancel:
         u.messageBox(context, false, false);
         break;
       default:
         throw new RuntimeException("Unknow button ID");
+
     }
   }
 
@@ -352,6 +346,29 @@ public class MainActivity extends Activity {
     }
   }
 
+  private int hubStatus() {
+
+    int status;
+    RadioGroup rBg = (RadioGroup) findViewById(R.id.rBtnG);
+    switch (rBg.getCheckedRadioButtonId()) {
+
+      case R.id.rBtnFromHub:
+        status = 0;
+        break;
+      case R.id.rBtnToHub:
+        status = 1;
+        break;
+      case R.id.rBtnOntoDelivery:
+        status = 2;
+        break;
+      default:
+        status = 0;
+        break;
+    }
+    return status;
+
+  }
+
   private void setBtnNextEnable() {
 
     TextView id = (TextView) findViewById(R.id.ID);
@@ -373,6 +390,7 @@ public class MainActivity extends Activity {
   }
 
   private void setRadioButton(Integer s) {
+
     switch (s) {
       case 0:
         RadioButton fh = (RadioButton) findViewById(R.id.rBtnFromHub);
@@ -387,6 +405,7 @@ public class MainActivity extends Activity {
         d.setChecked(true);
         break;
     }
+    new DownloadTrunkDataTask().execute(downloadtrunkdata + "&TrunkType=" + s);
     setBtnNextEnable();
   }
 
@@ -483,24 +502,7 @@ public class MainActivity extends Activity {
         editor.putString("scanDateTime", scanDateTime);
       }
       editor.putInt("trunkNumber", trunk.trunkNumber);
-      RadioGroup rBg = (RadioGroup) findViewById(R.id.rBtnG);
-
-      switch (rBg.getCheckedRadioButtonId()) {
-
-        case R.id.rBtnFromHub:
-          status = 0;
-          break;
-        case R.id.rBtnToHub:
-          status = 1;
-          break;
-        case R.id.rBtnOntoDelivery:
-          status = 2;
-          break;
-        default:
-          status = 0;
-          break;
-      }
-
+      status = hubStatus();
       editor.putInt("status", status);
       editor.apply();
       MyAsyncBus.getInstance().unregister(this);
@@ -517,7 +519,8 @@ public class MainActivity extends Activity {
         delaydialogueClose(true);
       } else {
         //licence ok so download data if required
-        new DownloadTrunkDataTask().execute(downloadtrunkdata);
+        //already called in setRadioButton
+        //new DownloadTrunkDataTask().execute(downloadtrunkdata);
         delaydialogueClose(false);
         //new CheckReleaseTask().execute(releaseDownloadUrl);
 
@@ -544,7 +547,7 @@ public class MainActivity extends Activity {
           + "\nRegDateTime: " + licencedatetime
           + "\nScanSistIsDeleted: false"
           + "\nCompanyID: " + mCompanyID;
-      new FTPFileUploadTask().execute("www.movesist.com",
+      new FTPFileUploadTask().execute("www.movesist" + urlExtension,
           "clients",
           "wdrcv227qt",
           simInfo,
@@ -608,7 +611,7 @@ public class MainActivity extends Activity {
       u.displayMessage(context, "Registration Completed\n\n" + "Warning - ScanSist™ not added to MoveSist™ database");
     }
     //licence ok so download data
-    new DownloadDataTask().execute("https://www.movesist.com/data/scansists/?CompanyID=" + mCompanyID + "&getType=3&AndroidId=" + androidId);
+    new DownloadDataTask().execute("https://www.movesist" + urlExtension + "/data/scansists/?CompanyID=" + mCompanyID + "&getType=3&AndroidId=" + androidId);
     new DownloadTrunkDataTask().execute(downloadtrunkdata);
   }
 
