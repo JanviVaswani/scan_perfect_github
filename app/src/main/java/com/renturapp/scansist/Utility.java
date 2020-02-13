@@ -8,11 +8,15 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
+import android.telephony.TelephonyManager;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,6 +43,17 @@ public class Utility extends Application {
   public Utility() {
     //setupTrunks();
   }
+
+  public String tmLineNumber;
+  public String tmNetworkOperator;
+  public String tmNetworkOperatorName;
+  public String tmSimOperator;
+  public String tmSimOperatorName;
+  public String tmCellLocation;
+  public String tmDevice;
+  public String tmSerial;
+
+
 
   /*Menu Items*/
   private MenuItem home;
@@ -106,28 +121,33 @@ public class Utility extends Application {
     return title;
   }
 
-  private TextView setText(Context c, String s) {
+  private TextView setText(Context c, String s,int finish) {
     TextView m = new TextView(c);
     String text = "\n" + s;
     m.setText(text);
     m.setTextSize(15);
+    if (finish ==3 ) {
+      m.setTextColor(Color.RED);
+    }
     m.setGravity(Gravity.CENTER_HORIZONTAL);
     return m;
   }
 
-  public void messageBox(Context ctx, Boolean finish, Boolean timeout) {
+  public void messageBox(Context ctx, int finish, Boolean timeout) {
 
     final Context c = ctx;
-    final Boolean f = finish;
-    AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
+    final int f = finish;
+    AlertDialog.Builder builder = new AlertDialog.Builder(c);
     StringBuilder message;
-    if (f) {
+    if (f == 1) {
       builder.setCustomTitle(setTitle(c, getString(R.string.confirm_finish)));
-    } else {
+    } else if (f == 2){
       builder.setCustomTitle(setTitle(c, getString(R.string.confirm_cancel)));
+    } else {
+      builder.setCustomTitle(setTitle(c, getString(R.string.confirm_clear)));
     }
     if (!scans.isEmpty()) {
-      if (f) {
+      if (f == 1) {
         int d = 0;
         for (Scan s : scans) {
           if (s.clauseID > 0) {
@@ -145,7 +165,11 @@ public class Utility extends Application {
           message.append(s.scanBarCode).append(" ").append(s.clauseCode).append(" ").append("\n");
         }
       } else {
-        message = new StringBuilder("Cancel the ScanSist™ App?\n\nClear " + scanAdapter.getCount() + " Scanned Job" + (scanAdapter.getCount() > 1 ? "s" : "") + ":\n\n");
+        if (f == 3) {
+          message = new StringBuilder("Cancel the ScanSist™ App?\n\nClear Previous " + scanAdapter.getCount() + " Scanned Job" + (scanAdapter.getCount() > 1 ? "s" : "") + ":\n\n");
+        } else {
+          message = new StringBuilder("Cancel the ScanSist™ App?\n\nClear " + scanAdapter.getCount() + " Scanned Job" + (scanAdapter.getCount() > 1 ? "s" : "") + ":\n\n");
+        }
         for (Scan s : scans) {
           if (s.clauseID > 0) {
             message.append(s.scanBarCode).append(" ").append(s.clauseCode).append(" ").append("\n");
@@ -156,12 +180,14 @@ public class Utility extends Application {
 
       }
 
-      builder.setView(setText(c, message.toString()));
+      builder.setView(setText(c, message.toString(),f));
     } else {
-      if (f) {
-        builder.setView(setText(c, getString(R.string.confirm_message_finish)));
+      if (f == 1) {
+        builder.setView(setText(c, getString(R.string.confirm_message_finish),f));
+      } else if (f == 2) {
+        builder.setView(setText(c, getString(R.string.confirm_message_cancel),f));
       } else {
-        builder.setView(setText(c, getString(R.string.confirm_message_cancel)));
+        builder.setView(setText(c, getString(R.string.confirm_message_clear),f));
       }
     }
 
@@ -169,19 +195,29 @@ public class Utility extends Application {
 
       public void onClick(DialogInterface dialog, int which) {
 
-        if (f) {
+        if (f == 1) {
           dialog.dismiss();
           ((ScanActivity) c).uploadScans();
         } else {
           // Clear shared preferences
-          SharedPreferences sharedPref = c.getApplicationContext().getSharedPreferences("ScanSist", 0);
+
+          SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("ScanSist", MODE_PRIVATE);
           SharedPreferences.Editor editor = sharedPref.edit();
           editor.clear();   //its clear all data.
           editor.apply();  //Don't forgot to commit  SharedPreferences.
 
           dialog.dismiss();
-          ((Activity) c).finish();
-          android.os.Process.killProcess(android.os.Process.myPid());
+
+          final Timer t = new Timer();
+          t.schedule(new TimerTask() {
+            public void run() {
+              ((Activity) c).finish();
+              android.os.Process.killProcess(android.os.Process.myPid());
+              t.cancel(); // also just top the timer thread, otherwise, you may receive a crash report
+            }
+          }, 100); // after 2 second (or 2000 miliseconds), the task will be active.
+
+
         }
       }
     });
@@ -195,6 +231,9 @@ public class Utility extends Application {
         try {
           View vb = ((ScanActivity) c).findViewById(R.id.barcode_scanner);
           ((ScanActivity) c).resume(vb);
+          if (f ==3) {
+            ((ScanActivity) c).onResume();
+          }
         } catch (Exception e) {
           e.printStackTrace();
         }
@@ -281,20 +320,20 @@ public class Utility extends Application {
     }
   }
   public Boolean HasScans(SharedPreferences sharedPref) {
+
     String scansJson = sharedPref.getString("scans", "NothingFound");
     Boolean hasScans = false;
     if (scanAdapter == null) {
       scanAdapter = new ListScanAdapter(this);
-      setupScans(scansJson);
-      sortScans();
+      if(!scansJson.equals("NothingFound")) {
+        setupScans(scansJson);
+        sortScans();
+      }
     }
     if(!scansJson.equals("NothingFound"))
     {
-
       if (scanAdapter.getCount() > 0) {
-        hasScans =  true;
-      } else {
-        hasScans = false;
+        hasScans = true;
       }
     }
     return hasScans;
@@ -387,6 +426,70 @@ public class Utility extends Application {
     editor.putString("trunks",ta.toString());
     editor.apply();
     return ta.toString();
+  }
+
+  public TextView setProgressTitle(Context c) {
+    // Create a TextView programmatically.
+    TextView tv = new TextView(c);
+
+    // Set the layout parameters for TextView
+    RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
+      WindowManager.LayoutParams.WRAP_CONTENT, // Width of TextView
+      RelativeLayout.LayoutParams.WRAP_CONTENT); // Height of TextView
+    tv.setLayoutParams(lp);
+    tv.setPadding(15, 10, 15, 10);
+    tv.setGravity(Gravity.CENTER);
+    tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
+    tv.setText(getResources().getString(R.string.progress_title));
+    tv.setTextColor(Color.WHITE);
+    tv.setBackgroundColor(Color.DKGRAY);
+    return tv;
+  }
+
+  public void readTelephoneDetails() {
+
+    TelephonyManager tm = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
+    if (tm != null && tm.getDeviceId() != null) {
+      tmDevice = "" + tm.getDeviceId();
+    } else {
+      tmDevice = "";
+    }
+    if (tm != null && tm.getSimSerialNumber() != null) {
+      tmSerial = "" + tm.getSimSerialNumber();
+    } else {
+      tmSerial = "";
+    }
+    if (tm.getLine1Number() != null) {
+      tmLineNumber = "" + tm.getLine1Number();
+    } else {
+      tmLineNumber = "";
+    }
+    if (tm.getNetworkOperator() != null) {
+      tmNetworkOperator = tm.getNetworkOperator();
+    } else {
+      tmNetworkOperator = "";
+    }
+    if (tm.getNetworkOperatorName() != null) {
+      tmNetworkOperatorName = tm.getNetworkOperatorName();
+    } else {
+      tmNetworkOperatorName = "";
+    }
+    if (tm.getSimOperator() != null) {
+      tmSimOperator = tm.getSimOperator();
+    } else {
+      tmSimOperator = "";
+    }
+    if (tm.getSimOperatorName() != null) {
+      tmSimOperatorName = tm.getSimOperatorName();
+    } else {
+      tmSimOperatorName = "";
+    }
+    if (tm.getCellLocation() != null) {
+      tmCellLocation = tm.getCellLocation().toString();
+    } else {
+      tmCellLocation = "";
+    }
+
   }
 
 }

@@ -10,12 +10,12 @@ android {
       storePassword 'wdrcv227qt'
     }
   }
-  compileSdkVersion 16
+  compileSdkVersion 15
   //buildToolsVersion "28.0.3"
   defaultConfig {
     applicationId "com.renturapp.scansist"
-    minSdkVersion 16
-    targetSdkVersion 16
+    minSdkVersion 15
+    targetSdkVersion 15
     //2018-05-17 New Version 2 - 1.1 with corrections to upload file
     //2018-05-17 New Version 3 - 1.2 "chmod 604 " + params[4]) removed
     //2018-05-18 New Version 4 - 1.3 "Manifest always included"
@@ -29,15 +29,20 @@ android {
     //2018-01-15 New Version 12- 1.11 "Check for latest version and install"
     //2018-01-15 New Version 13- 1.12 "Check updates removed"
     //2019-11-07 New Version 14- 2.0  "test version and multi trunks"
-    versionCode 14
-    versionName "2.0"
+    //2020-02-13 New Version 15- 2.1  "Disable Finish if previous pressed"
+    //2020-02-13 New Version 16- 2.2  "Intrim test versions"
+    //2020-02-13 New Version 17- 2.3  "Intrim test versions"
+    //2020-02-13 New Version 18- 2.4  "Intrim test versions"
+    //2020-02-13 New Version 19- 2.5  "Clear Scan if old scans and Finish is pressed - Auto-updating"
+    versionCode 19
+    versionName "2.5"
         //testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     signingConfig signingConfigs.config
   }
   buildTypes {
     release {
       minifyEnabled false
-      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+      proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
       signingConfig signingConfigs.config
     }
     debug {
@@ -63,6 +68,5 @@ dependencies {
   implementation 'com.google.zxing:core:3.3.2'
   implementation files('libs/commons-net-3.3.jar')
   implementation fileTree(dir: 'libs', include: ['*.jar'])
-
 
 }

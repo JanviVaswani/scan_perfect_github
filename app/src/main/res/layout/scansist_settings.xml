@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
+
+  <TextView
+    android:id="@+id/lblTitleSettings"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:text="@string/scan_settings"
+    android:textSize="30sp"
+    android:textStyle="bold"
+    android:layout_alignParentTop="true"/>
+
+  <LinearLayout
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/lblTitleSettings"
+
+    >
+    <LinearLayout
+      android:orientation="horizontal"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:layout_marginLeft="5sp"
+      >
+      <TextView
+        android:id="@+id/lblCompanyName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/companyName"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        />
+      <TextView
+        android:id="@+id/txtCompanyName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/companyName"
+        android:layout_marginLeft="5sp"
+        />
+    </LinearLayout>
+    <LinearLayout
+      android:orientation="horizontal"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:layout_marginLeft="5sp"
+      >
+      <TextView
+        android:id="@+id/lblDepotNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/depotNumber"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        />
+      <TextView
+        android:id="@+id/txtDepotNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/depotNumber"
+        android:layout_marginLeft="5sp"
+        />
+    </LinearLayout>
+  <LinearLayout
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginLeft="5sp"
+    >
+    <TextView
+     android:id="@+id/lblScannerID"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:text="@string/scannerID"
+     android:textSize="20sp"
+     android:textStyle="bold"
+
+
+    />
+    <TextView
+     android:id="@+id/txtScannerID"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:text="@string/scannerID"
+     android:layout_marginLeft="5sp"
+
+    />
+  </LinearLayout>
+  <LinearLayout
+      android:orientation="horizontal"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:layout_marginLeft="5sp"
+  >
+      <TextView
+        android:id="@+id/lblAndroidID"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/androidID"
+        android:textSize="20sp"
+        android:textStyle="bold"
+
+
+        />
+      <TextView
+        android:id="@+id/txtAndroidID"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/androidID"
+        android:layout_marginLeft="5sp"
+
+        />
+  </LinearLayout>
+
+  </LinearLayout>
+    <Button
+      android:id="@+id/btnSettings"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="@string/about_ok"
+      android:layout_alignParentBottom="true"
+   />
+  </RelativeLayout>

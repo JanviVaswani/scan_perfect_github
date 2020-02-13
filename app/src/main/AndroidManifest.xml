@@ -12,8 +12,8 @@
         <!--<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />-->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
-    <!--Camera -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!--Camera -->
     <uses-permission android:name="android.permission.CAMERA" />
 
     <application
@@ -39,6 +39,18 @@
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="fullSensor"
             tools:replace="screenOrientation" />
+        <activity android:name=".AboutActivity"
+          android:configChanges="orientation|keyboard|keyboardHidden|screenSize|screenLayout|uiMode"
+          android:theme="@style/RentUrAppTheme" />
+        <activity android:name=".SettingsActivity"
+          android:configChanges="orientation|keyboard|keyboardHidden|screenSize|screenLayout|uiMode"
+          android:theme="@style/RentUrAppTheme" />
+        <activity android:name=".LicenceActivity"
+          android:configChanges="orientation|keyboard|keyboardHidden|screenSize|screenLayout|uiMode"
+          android:theme="@style/RentUrAppTheme" />
+        <activity android:name=".RegisterScanSistActivity"
+          android:configChanges="orientation|keyboard|keyboardHidden|screenSize|screenLayout|uiMode"
+          android:theme="@style/RentUrAppTheme" />
 
     </application>
 

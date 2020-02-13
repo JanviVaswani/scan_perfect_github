@@ -26,6 +26,11 @@
     android:title="@string/action_settings"
     android:showAsAction="never"/>
 
+  <item android:id="@+id/action_licence"
+    android:title="@string/menu_licence"
+    android:showAsAction="never"/>
+
+
   <item
     android:id="@+id/action_about"
     android:title="@string/menu_about"

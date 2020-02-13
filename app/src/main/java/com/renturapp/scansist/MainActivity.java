@@ -1,12 +1,9 @@
 package com.renturapp.scansist;
 
 import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.DownloadManager;
-import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -17,9 +14,8 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.net.ConnectivityManager;
+import android.graphics.Paint;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -35,13 +31,11 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
 
@@ -51,10 +45,8 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 import static android.content.ContentValues.TAG;
@@ -66,8 +58,16 @@ public class MainActivity extends Activity {
     //Registration
   private ProgressDialog progressDialog;
   private Context context;
-  private String deviceUu;
-  private String deviceFilePath;
+
+  public static String deviceUu;
+  public static String deviceFilePath;
+  public static String deviceFullPath;
+  public static String androidId;
+  public static String regdatetime;
+
+
+  //private String deviceUu;
+ // private String deviceFilePath;
   private String tmLineNumber;
   private String tmNetworkOperator;
   private String tmNetworkOperatorName;
@@ -76,138 +76,72 @@ public class MainActivity extends Activity {
   private String tmCellLocation;
   private String tmDevice;
   private String tmSerial;
-  private String androidId;
-  private String regdatetime;
+  //private String androidId;
+ // private String regdatetime;
   String licencedatetime;
   private String downloadtrunkdata = "";
   private TelephonyManager tm = null;
   private static boolean uploadregfile = false;
-  private static String mCompanyID = "2";
-  private static String mcompany = "demo";
-  private static String urlExtension = ".com";
-  private static String releaseDownloadUrl = "https://www.movesist" + urlExtension + "/clients/" + mcompany + "/downloads/scansist/" + mcompany + "_scansist.apk";
+  public  static String mCompanyID = "2";
+  public  static String mcompany = "demo";
+  public  static String urlExtension = ".com";
+  private static String liveVersion;
+  private static String installedVersion;
+  private static String releaseDownloadUrl = "https://www.movesist" + urlExtension + "/clients/" + mcompany + "/downloads/scansist/" + mcompany + "_scansist_";
   static boolean localData = false;
   private Utility u;
   private Calendar myCalendar;
-  private EditText dateText;
+  private TextView dateText;
+  private TextView lblDateText;
   private DatePickerDialog.OnDateSetListener date;
   private Date mDate;
   private Spinner spnTrunk;
+  private RadioGroup rBg;
+
+  private JSONArray ta;
 
   private Button btnNext;
+  public  static String notRegistered = "Not a registered user.\n\nPlease contact sales on 01788 523800 to register your application.";
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    MyAsyncBus.getInstance().register(this);
     setContentView(R.layout.activity_main);
+
     uploadregfile = false;
+
     context = MainActivity.this;
     u = (Utility) getApplicationContext();
+    androidId = "" + android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+    String companyID = PreferenceManager.getDefaultSharedPreferences(context).getString("CompanyID", "NothingFound");
+    String company = PreferenceManager.getDefaultSharedPreferences(context).getString("CompanyUrl", "NothingFound");
+    String depotNumber = PreferenceManager.getDefaultSharedPreferences(context).getString("DepotNumber", "NothingFound");
+    String companyName = PreferenceManager.getDefaultSharedPreferences(context).getString("CompanyName", "NothingFound");
 
-    SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("ScanSist", MODE_PRIVATE);
-    Boolean hasScansToProcess = u.HasScans(sharedPref);
+    if (companyID.equals("NothingFound") ||
+      company.equals("NothingFound") ||
+      depotNumber.equals("NothingFound") ||
+      companyName.equals("NothingFound")) {
 
-    if (!u.isOnline() && !hasScansToProcess) {
-      u.displayMessage(context, "No Internet connection.\n\nLicence cannot be verified.");
-      MainActivity.super.onBackPressed();
+      Intent registerScanSist = new Intent(MainActivity.this, RegisterScanSistActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+      //nextScreen.putExtras(bundle);
+      startActivity(registerScanSist);
     } else {
-      //New instance is set to null
-      progressDialog = null;
-      //Debug Mode no Licence check
-      Boolean debugMode = false;
-      if (debugMode) {
-        u.displayMessage(context, "ScanSist™ - Trial Application - Please wait.");
-      }
-      /*
-       *
-       *
-       *   Register ScanSist App
-       *
-       *
-       *                          */
-      Intent intent = getIntent();
-      androidId = "" + android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
-      if (!localData) {
-        downloadtrunkdata = "https://www.movesist" + urlExtension + "/data/trunks/?CompanyID=" + mCompanyID + "&getType=7&AndroidId=" + androidId;
-      } else {
-        downloadtrunkdata = "http://192.168.0.5/data/trunks/?CompanyID=" + mCompanyID + "&getType=7&AndroidId=" + androidId;
-      }
-      // getting attached intent data
-      Boolean previousPressed = intent.getBooleanExtra("onBackPressed", false);
-      /* Called when the activity is first created. */
-      if (!previousPressed && !hasScansToProcess) {
-
-        deviceUu = "scansist_" + mcompany + "_" + androidId;
-
-        String deviceFullPath = "https://www.movesist" + urlExtension + "/clients/" + mcompany + "/users/scansist/" + deviceUu + "_p.html";
-        deviceFilePath = "/" + mcompany + "/users/scansist/" + deviceUu + "_p.html";
-
-        //Must use default preference file!
-        String deviceUuPref = PreferenceManager.getDefaultSharedPreferences(context).getString("RegKey", "NothingFound");
-        if (deviceUuPref.equals("NothingFound")) {
-
-          //Do we need to upload a file
-          progressDialog = new ProgressDialog(context);
-          progressDialog.setCustomTitle(setProgressTitle());
-          progressDialog.setMessage("Registering Licence - v" + getVersionName(context) + "\n\n         Please wait.");
-          progressDialog.setIndeterminate(true);
-          progressDialog.setCancelable(false);
-          progressDialog.show();
-          uploadregfile = true;
-          new CheckLicenceTask().execute(deviceFullPath);
-        } else {
-          if (!u.isOnline()) {
-
-            u.displayMessage(context, "No Internet connection.\n\nLicence cannot be verified.");
-            MainActivity.super.onBackPressed();
-          } else {
-            //Check for the occurrence of the file that is shown in the saved registration key adding a '_p' will ensure it runs once registered
-            String deviceRegFullPath = "https://www.movesist" + urlExtension + "/clients/" + mcompany + "/users/scansist/" + deviceUuPref + "_p.html";
-            progressDialog = new ProgressDialog(context);
-            progressDialog.setCustomTitle(setProgressTitle());
-            progressDialog.setMessage("Checking Licence - v" + getVersionName(context) + "\n\n    Company (" + mcompany + ")\n\n         Please wait.");
-            progressDialog.setIndeterminate(true);
-            progressDialog.setCancelable(false);
-            progressDialog.show();
-            new CheckLicenceTask().execute(deviceRegFullPath);
-            uploadregfile = false;
-          }
-        }
-      } else {
-        String trunksJson = sharedPref.getString("trunks", "NothingFound");
-        if (!trunksJson.equals("NothingFound")) {
-          if (u.trunkAdapter == null) {
-            u.trunkAdapter = new ListTrunkAdapter(u);
-          }
-          u.setupTrunks(trunksJson);
-          setupTrunkSpinner(sharedPref);
-        } else {
-          //May have just finished so reload
-          new DownloadTrunkDataTask().execute(downloadtrunkdata);
-        }
-      }
-      /*
-       *
-       *
-       *     End of ScanSist registration checking
-       *
-       *
-       *                                              */
-
-      MyAsyncBus.getInstance().register(this);
-
-      //if (u.scanAdapter == null) {
-      //u.scanAdapter = new ListScanAdapter(u);
-      //}
 
       btnNext = (Button) findViewById(R.id.btnNext);
       btnNext.setClickable(false);
       btnNext.setAlpha(0.5f);
 
+      rBg = (RadioGroup) findViewById(R.id.rBtnG);
 
       myCalendar = Calendar.getInstance();
 
-      dateText = (EditText) findViewById(R.id.txtManifestDate);
+      dateText = (TextView) findViewById(R.id.txtManifestDate);
+      lblDateText =  (TextView) findViewById(R.id.lblManifestDate);
+      dateText.setPaintFlags(dateText.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+      dateText.setHintTextColor(getResources().getColor(R.color.blue));
+
       date = new DatePickerDialog.OnDateSetListener() {
 
         @Override
@@ -228,8 +162,8 @@ public class MainActivity extends Activity {
         public void onClick(View v) {
           // TODO Auto-generated method stub
           new DatePickerDialog(context, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT, date, myCalendar
-              .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
-              myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+            .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+            myCalendar.get(Calendar.DAY_OF_MONTH)).show();
 
           if (mDate != null) {
             myCalendar.setTime(mDate);
@@ -237,6 +171,96 @@ public class MainActivity extends Activity {
           u.hideKeyboard(context);
         }
       });
+
+      mCompanyID = companyID;
+      mcompany   = company;
+
+      uploadregfile = true;
+      SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("ScanSist", MODE_PRIVATE);
+      Boolean hasScansToProcess = u.HasScans(sharedPref);
+
+      if (!hasScansToProcess && !u.isOnline()) {
+        u.displayMessage(context, "No Internet connection.\n\nLicence cannot be verified.");
+        onBackPressed();
+        return;
+      } else {
+        //New instance is set to null
+        progressDialog = null;
+        //Debug Mode no Licence check
+        Boolean debugMode = false;
+        if (debugMode) {
+          u.displayMessage(context, "ScanSist™ - Trial Application - Please wait.");
+        }
+        /*
+         *
+         *
+         *   RegisterScanSist ScanSist App
+         *
+         *
+         *                          */
+        Intent intent = getIntent();
+
+        // getting attached intent data
+        Boolean previousPressed = intent.getBooleanExtra("onBackPressed", false);
+        if (!localData) {
+          downloadtrunkdata = "https://www.movesist" + urlExtension + "/data/trunks/?CompanyID=" + mCompanyID + "&getType=7&AndroidId=" + androidId;
+        } else {
+          downloadtrunkdata = "http://192.168.0.5/data/trunks/?CompanyID=" + mCompanyID + "&getType=7&AndroidId=" + androidId;
+        }
+        /* Called when the activity is first created. */
+        if (!previousPressed && !hasScansToProcess) { // && !Utility.isActivityBackground()) {
+
+          deviceUu = "scansist_" + mcompany + "_" + androidId;
+          deviceFullPath = "https://www.movesist" + urlExtension + "/clients/" + mcompany + "/users/scansist/" + deviceUu + "_p.html";
+          deviceFilePath = "/" + mcompany + "/users/scansist/" + deviceUu + "_p.html";
+          String scanSistCode =  String.valueOf(PreferenceManager.getDefaultSharedPreferences(context).getInt("ScanSistCode", MODE_PRIVATE));
+
+          if (!u.isOnline()) {
+            u.displayMessage(context, "No Internet connection.\n\nLicence cannot be verified.");
+            MainActivity.super.onBackPressed();
+          } else {
+            //Check for the occurrence of the file that is shown in the saved registration key adding a '_p' will ensure it runs once registered
+            String deviceRegFullPath = "https://www.movesist" + urlExtension + "/clients/" + mcompany + "/users/scansist/" + deviceUu + "_p.html";
+            progressDialog = new ProgressDialog(context);
+            progressDialog.setCustomTitle(u.setProgressTitle(context));
+            progressDialog.setMessage("Checking Licence - v" + getVersionName(context) + "\n\n" + companyName + "\n\nDepot " + depotNumber + " Scanner ID: " + scanSistCode + "\n\n         Please wait.");
+            progressDialog.setIndeterminate(true);
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+            new CheckLicenceTask().execute(deviceRegFullPath);
+            uploadregfile = false;
+          }
+        } else {
+          String trunksJson = sharedPref.getString("trunks", "NothingFound");
+          try {
+            ta = new JSONArray(trunksJson);
+          } catch (JSONException e) {
+            e.printStackTrace();
+          }
+          if (!trunksJson.equals("NothingFound") && !u.isOnline()) {
+            if (u.trunkAdapter == null) {
+              u.trunkAdapter = new ListTrunkAdapter(u);
+            }
+            u.setupTrunks(trunksJson);
+            setupTrunkSpinner(sharedPref);
+          } else {
+            //May have just finished so reload
+            //ToDo This occurs when we select the radio buttons so not needed
+            //ToDo but would occur if the radio button is already selected!
+            if (ta!=null && ta.length() == 1) {
+              new DownloadTrunkDataTask().execute(downloadtrunkdata);
+            }
+          }
+        }
+      }
+      /*
+       *
+       *
+       *     End of ScanSist registration checking
+       *
+       *
+       *                                              */
+
 
       // Create object of SharedPreferences.
       //SharedPreferences sharedPref= getApplicationContext().getSharedPreferences("ScanSist",MODE_PRIVATE);
@@ -257,7 +281,7 @@ public class MainActivity extends Activity {
       int status = sharedPref.getInt("status", -1);
 
       if (status != -1) {
-        setRadioButton(status);
+        setRadioButton(status,sharedPref);
       }
       if (u.clauses.isEmpty()) {
         u.setupClauses(status);
@@ -269,7 +293,7 @@ public class MainActivity extends Activity {
       //  u.setupScans(scansJson);
       //}
 
-      setBtnNextEnable();
+      setBtnNextEnable(sharedPref);
 
     }
   }
@@ -282,24 +306,62 @@ public class MainActivity extends Activity {
   }
 
   private void updateLabel() {
+    SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("ScanSist", MODE_PRIVATE);
     String myFormat = "dd/MM/yy"; //In which you need put here
     SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.UK);
 
     mDate = myCalendar.getTime();
     dateText.setText(sdf.format(mDate));
 
-    setBtnNextEnable();
+    setBtnNextEnable(sharedPref);
   }
 
   public void onRadioButtonClicked(View v) {
-
+    SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("ScanSist", MODE_PRIVATE);
     int trunkHub = hubStatus();
-    setBtnNextEnable();
+    setBtnNextEnable(sharedPref);
     u.setupClauses(trunkHub);
     new DownloadTrunkDataTask().execute(downloadtrunkdata + "&TrunkType=" + trunkHub);
 
   }
 
+  private void enableRbg (Boolean enabled) {
+    for (int i = 0; i < rBg.getChildCount(); i++) {
+      rBg.getChildAt(i).setEnabled(enabled);
+    }
+  }
+  private void enableScanSetup(Boolean enabled) {
+    if (enabled) {
+      if (lblDateText!=null) {
+        lblDateText.setAlpha(1f);
+      }
+      if (dateText!=null) {
+        dateText.setClickable(true);
+        dateText.setEnabled(true);
+        dateText.setAlpha(1f);
+      }
+      if (spnTrunk!=null) {
+        spnTrunk.setClickable(true);
+        spnTrunk.setEnabled(true);
+        spnTrunk.setAlpha(1f);
+      }
+    } else {
+      if (lblDateText!=null) {
+        lblDateText.setAlpha(0.5f);
+      }
+      if (dateText!=null) {
+        dateText.setClickable(false);
+        dateText.setEnabled(false);
+        dateText.setAlpha(0.33f);
+      }
+      if (spnTrunk!=null) {
+        spnTrunk.setClickable(false);
+        spnTrunk.setEnabled(false);
+        spnTrunk.setAlpha(0.5f);
+      }
+
+    }
+  }
   public void onWizardButtonClicked(View v) {
 
     switch (v.getId()) {
@@ -311,7 +373,7 @@ public class MainActivity extends Activity {
         selectPage(hubStatus());
         break;
       case R.id.btnCancel:
-        u.messageBox(context, false, false);
+        u.messageBox(context, 2, false);
         break;
       default:
         throw new RuntimeException("Unknow button ID");
@@ -321,6 +383,7 @@ public class MainActivity extends Activity {
 
   private void setupTrunkSpinner(SharedPreferences sharedPref) {
 
+    final SharedPreferences sp = sharedPref;
     spnTrunk = (Spinner) findViewById(R.id.spnTrunk);
     spnTrunk.setVisibility(View.VISIBLE);
     spnTrunk.setAdapter(u.trunkAdapter);
@@ -329,7 +392,7 @@ public class MainActivity extends Activity {
         new AdapterView.OnItemSelectedListener() {
           @Override
           public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            setBtnNextEnable();
+            setBtnNextEnable(sp);
           }
 
           @Override
@@ -337,11 +400,14 @@ public class MainActivity extends Activity {
           }
         });
     int trunkNumber = sharedPref.getInt("trunkNumber", 0);
-    for (int i = 0; i <= u.trunkAdapter.getCount(); i++) {
-      Trunk t = (Trunk) spnTrunk.getItemAtPosition(i);
-      if (t != null && trunkNumber == t.trunkNumber) {
-        spnTrunk.setSelection(i);
-        break;
+    //ToDo The download list may not be in sync with the stored list or may be length of 1 (the default)
+    if (u.trunkAdapter.getCount()>1) {
+      for (int i = 0; i <= u.trunkAdapter.getCount(); i++) {
+        Trunk t = (Trunk) spnTrunk.getItemAtPosition(i);
+        if (t != null && trunkNumber == t.trunkNumber) {
+          spnTrunk.setSelection(i);
+          break;
+        }
       }
     }
   }
@@ -349,7 +415,7 @@ public class MainActivity extends Activity {
   private int hubStatus() {
 
     int status;
-    RadioGroup rBg = (RadioGroup) findViewById(R.id.rBtnG);
+    //RadioGroup rBg = (RadioGroup) findViewById(R.id.rBtnG);
     switch (rBg.getCheckedRadioButtonId()) {
 
       case R.id.rBtnFromHub:
@@ -362,14 +428,14 @@ public class MainActivity extends Activity {
         status = 2;
         break;
       default:
-        status = 0;
+        status = -1;
         break;
     }
     return status;
 
   }
 
-  private void setBtnNextEnable() {
+  private void setBtnNextEnable(SharedPreferences sharedPref) {
 
     TextView id = (TextView) findViewById(R.id.ID);
 
@@ -378,18 +444,24 @@ public class MainActivity extends Activity {
       trunkNumber = parseInt(id.getText().toString());
     }
 
-    RadioGroup g = (RadioGroup) findViewById(R.id.rBtnG);
-
-    if (dateText.length() > 0 && trunkNumber > 0 && mDate != null && g.getCheckedRadioButtonId() != -1) {
+    if (dateText.length() > 0 && trunkNumber > 0 && mDate != null && rBg.getCheckedRadioButtonId() != -1) {
       btnNext.setClickable(true);
       btnNext.setAlpha(1f);
+
     } else {
       btnNext.setClickable(false);
       btnNext.setAlpha(0.5f);
     }
+    if (u.HasScans(sharedPref)) {
+      enableScanSetup(false);
+      enableRbg(false);
+    } else {
+      enableScanSetup(true);
+      enableRbg(true);
+    }
   }
 
-  private void setRadioButton(Integer s) {
+  private void setRadioButton(Integer s,SharedPreferences sharedPref) {
 
     switch (s) {
       case 0:
@@ -405,8 +477,10 @@ public class MainActivity extends Activity {
         d.setChecked(true);
         break;
     }
-    new DownloadTrunkDataTask().execute(downloadtrunkdata + "&TrunkType=" + s);
-    setBtnNextEnable();
+    if (u.isOnline()) {
+      new DownloadTrunkDataTask().execute(downloadtrunkdata + "&TrunkType=" + s);
+    }
+    setBtnNextEnable(sharedPref);
   }
 
   private void selectPage(Integer status) {
@@ -452,28 +526,53 @@ public class MainActivity extends Activity {
 
     u.hideKeyboard(context);
     //FragmentTransaction ft;
-    switch (item.getItemId()) {
+    int id = item.getItemId();
+    Intent nextScreen;
+    switch (id) {
       case R.id.action_settings:
-        // User chose the "Settings" item, show the app settings UI...
-        return true;
+        nextScreen = new Intent(MainActivity.this, SettingsActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        //nextScreen.putExtras(bundle);
+        startActivity(nextScreen);
+        //finish();
+        break;
+
       case R.id.action_about:
-        // User chose the "Settings" item, show the app settings UI...
-        return true;
-      case R.id.action_home:
+        nextScreen = new Intent(MainActivity.this, AboutActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        //nextScreen.putExtras(bundle);
+        startActivity(nextScreen);
+        //finish();
+        break;
+
+
+      case R.id.action_licence:
+        nextScreen = new Intent(MainActivity.this, LicenceActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        //nextScreen.putExtras(bundle);
+        startActivity(nextScreen);
+        //finish();
+        break;
+        case R.id.action_home:
         // User choose the "Setup home Option" action, go to home screen
         u.changeMenuItemState(u.getHome(), false, true, false);
         u.changeMenuItemState(u.getBarCode(), false, false, false);
         onBackPressed();
-        return true;
+        break;
+        //return true;
       case R.id.action_barcode:
-        return true;
+        //return true;
+        break;
       case R.id.action_flash:
-        return true;
+        //return true;
+        break;
       default:
         // If we got here, the user's action was not recognized.
         // Invoke the superclass to handle it.
-        return super.onOptionsItemSelected(item);
+        //return super.onOptionsItemSelected(item);
+        break;
+
     }
+
+    return super.onOptionsItemSelected(item);
+
   }
 
   @Override
@@ -484,8 +583,10 @@ public class MainActivity extends Activity {
   @Override
   protected void onDestroy() {
 
+    // Always unregister when an object no longer should be on the bus.
+    MyAsyncBus.getInstance().unregister(this);
+    super.onDestroy();
     int status;
-
     if (spnTrunk != null) {
 
       Trunk trunk = (Trunk) spnTrunk.getSelectedItem();
@@ -505,14 +606,13 @@ public class MainActivity extends Activity {
       status = hubStatus();
       editor.putInt("status", status);
       editor.apply();
-      MyAsyncBus.getInstance().unregister(this);
     }
-    super.onDestroy();
   }
 
   @Subscribe
   public void onCheckLicenceTaskResultEvent(CheckLicenceTaskResultEvent event) {
-
+    String vn = getVersionName(context);
+    installedVersion = vn.replace(".","_");
     if (!uploadregfile) {
       if (!event.getResult()) {
         u.displayMessage(context, "Not a registered user.\n\nPlease contact sales on 01788 523800 to register your application.");
@@ -521,61 +621,42 @@ public class MainActivity extends Activity {
         //licence ok so download data if required
         //already called in setRadioButton
         //new DownloadTrunkDataTask().execute(downloadtrunkdata);
-        delaydialogueClose(false);
+        //delaydialogueClose(false);
         //new CheckReleaseTask().execute(releaseDownloadUrl);
-
+        new CheckReleaseTask().execute(releaseDownloadUrl +"version.html",installedVersion);
       }
     } else {
-      //Upload file
-      SimpleDateFormat sdf = new SimpleDateFormat("EEEE MMM dd yyyy, hh:mm:ss aa", Locale.UK);
-      licencedatetime = sdf.format(new Date());
-      SimpleDateFormat reg_sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm", Locale.UK);
-      regdatetime = reg_sdf.format(new Date());
-
-      readTelephoneDetails(true);
-
-      String simInfo;
-      simInfo = "Serial: " + tmSerial
-          + "\nTel: " + tmLineNumber
-          + "\nNetwork: " + tmNetworkOperator
-          + "\nName: " + tmNetworkOperatorName
-          + "\nSimOp: " + tmSimOperator
-          + "\nSimOpName: " + tmSimOperatorName
-          + "\nCellLocation: " + tmCellLocation
-          + "\nDeviceId: " + tmDevice
-          + "\nAndroidId: " + androidId
-          + "\nRegDateTime: " + licencedatetime
-          + "\nScanSistIsDeleted: false"
-          + "\nCompanyID: " + mCompanyID;
-      new FTPFileUploadTask().execute("www.movesist" + urlExtension,
-          "clients",
-          "wdrcv227qt",
-          simInfo,
-          deviceFilePath);
+      new CheckReleaseTask().execute(releaseDownloadUrl +"version.html",installedVersion);
+      //delaydialogueClose(false);
+      //stopScan();
+      //TODO must load register intent first and once its complete then upload file
+      //Intent registerScanSist = new Intent(MainActivity.this, RegisterScanSistActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+      //nextScreen.putExtras(bundle);
+      //startActivity(registerScanSist);
     }
   }
   @Subscribe
   public void onCheckReleaseTaskResultEvent(CheckReleaseTaskResultEvent event){
-    if (event.getResult()!=-1) {
-      Boolean updateRequired =  false;
-      final long webPackageUpdated = event.getResult();//getWebPackageUpdated();
-      final long appUpdatedOnDevice = getAppUpdatedOnDevice();
-      if (appUpdatedOnDevice != -1 && webPackageUpdated != -1) {
-        if (webPackageUpdated > appUpdatedOnDevice) {
-          updateRequired =  true;
-        }
-      }//else FAIL, try another day
-      if (updateRequired) {
-        triggerUpdate(context);
-      } else {
-        //Download ok and not required
-        new DownloadTrunkDataTask().execute(downloadtrunkdata);
+
+    liveVersion  = event.getResult();
+    if (liveVersion.length()> 0 && !installedVersion.equals(liveVersion) ) {
+      if (!uploadregfile) {
+        delaydialogueClose(false);
       }
+      triggerUpdate(context);
     } else {
+      if (!uploadregfile) {
+        delaydialogueClose(false);
+      } else {
+        Intent registerScanSist = new Intent(MainActivity.this, RegisterScanSistActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        //nextScreen.putExtras(bundle);
+        startActivity(registerScanSist);
+      }
       //Download not available but still need trunks!
-      new DownloadTrunkDataTask().execute(downloadtrunkdata);
+      //new DownloadTrunkDataTask().execute(downloadtrunkdata);
     }
   }
+
   @Subscribe
   public void onAsyncFTPFileUploadTaskResultEvent(FTPFileUploadTaskResultEvent event) {
 
@@ -583,20 +664,22 @@ public class MainActivity extends Activity {
       delaydialogueClose(true);
       u.displayMessage(context, "Registration Failed.");
     } else {
-      new RegisterScanSistTask().execute(tmSerial
-          , tmLineNumber
-          , tmNetworkOperator
-          , tmNetworkOperatorName
-          , tmSimOperator
-          , tmSimOperatorName
-          , tmCellLocation
-          , tmDevice
-          , androidId
-          , deviceUu + ".html"
-          , regdatetime
-          , "false"
-          , mCompanyID
-          , "7");
+      //u.readTelephoneDetails();
+      new RegisterScanSistTask().execute(u.tmSerial
+        , u.tmLineNumber
+        , u.tmNetworkOperator
+        , u.tmNetworkOperatorName
+        , u.tmSimOperator
+        , u.tmSimOperatorName
+        , u.tmCellLocation
+        , u.tmDevice
+        , androidId
+        , deviceUu + ".html"
+        , regdatetime
+        , "false"
+        , mCompanyID
+        , "7"
+        ,"https://www.movesist" + urlExtension +"/data/scansists/");
     }
 
   }
@@ -612,28 +695,30 @@ public class MainActivity extends Activity {
     }
     //licence ok so download data
     new DownloadDataTask().execute("https://www.movesist" + urlExtension + "/data/scansists/?CompanyID=" + mCompanyID + "&getType=3&AndroidId=" + androidId);
-    new DownloadTrunkDataTask().execute(downloadtrunkdata);
+    //ToDo We cannot down Truck data until radio button is selected
+    //new DownloadTrunkDataTask().execute(downloadtrunkdata);
   }
 
   @Subscribe
   public void onDownloadTaskResultEvent(DownloadDataTaskResultEvent event) {
+
     delaydialogueClose(false);
     if (event.getResult() != null) {
       SharedPreferences dp = PreferenceManager.getDefaultSharedPreferences(context);
       //now get the Editor
       SharedPreferences.Editor editor = dp.edit();
-      String depotNumber = "";
+      //String depotNumber = "";
       int scanSistCode = 0;
       try {
         JSONArray data_array = new JSONArray(event.getResult());
         for (int i = 0; i < data_array.length(); i++) {
           JSONObject obj = new JSONObject(data_array.get(i).toString());
-          depotNumber = obj.getString("DepotNumber");
+          //depotNumber = obj.getString("DepotNumber");
           scanSistCode = obj.getInt("ScanSistCode");
           break;
         }
         editor.putString("RegKey", deviceUu);
-        editor.putString("DepotNumber", depotNumber);
+        //editor.putString("DepotNumber", depotNumber);
         editor.putInt("ScanSistCode", scanSistCode);
         //was added in 2.3, it commits without returning a boolean indicating success or failure
         editor.apply();
@@ -645,6 +730,9 @@ public class MainActivity extends Activity {
     } else {
       u.displayMessage(context, "Warning - No ScanSist™ Registration Data Available.");
     }
+    Intent mainActivity = new Intent(MainActivity.this, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    //nextScreen.putExtras(bundle);
+    startActivity(mainActivity);
   }
 
   @Subscribe
@@ -698,53 +786,6 @@ public class MainActivity extends Activity {
     return tv;
   }
 
-  private void readTelephoneDetails(boolean canReadPhoneSate) {
-
-    tm = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
-    if (canReadPhoneSate && tm != null && tm.getDeviceId() != null) {
-      tmDevice = "" + tm.getDeviceId();
-    } else {
-      tmDevice = "";
-    }
-    if (canReadPhoneSate && tm != null && tm.getSimSerialNumber() != null) {
-      tmSerial = "" + tm.getSimSerialNumber();
-    } else {
-      tmSerial = "";
-    }
-    if (canReadPhoneSate && tm.getLine1Number() != null) {
-      tmLineNumber = "" + tm.getLine1Number();
-    } else {
-      tmLineNumber = "";
-    }
-    if (tm.getNetworkOperator() != null) {
-      tmNetworkOperator = tm.getNetworkOperator();
-    } else {
-      tmNetworkOperator = "";
-    }
-    if (tm.getNetworkOperatorName() != null) {
-      tmNetworkOperatorName = tm.getNetworkOperatorName();
-    } else {
-      tmNetworkOperatorName = "";
-    }
-    if (tm.getSimOperator() != null) {
-      tmSimOperator = tm.getSimOperator();
-    } else {
-      tmSimOperator = "";
-    }
-    if (tm.getSimOperatorName() != null) {
-      tmSimOperatorName = tm.getSimOperatorName();
-    } else {
-      tmSimOperatorName = "";
-    }
-    if (canReadPhoneSate && tm.getCellLocation() != null) {
-      tmCellLocation = tm.getCellLocation().toString();
-    } else {
-      tmCellLocation = "";
-    }
-
-  }
-
-
   private String getVersionName(Context context) {
     try {
       PackageInfo pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_META_DATA);
@@ -770,6 +811,7 @@ public class MainActivity extends Activity {
       }
     }, 2000);
   }
+  /*
   private long getAppUpdatedOnDevice() {
     PackageInfo packageInfo = null;
     try {
@@ -782,15 +824,16 @@ public class MainActivity extends Activity {
     }
     return packageInfo.lastUpdateTime;
   }
+  */
   protected void triggerUpdate(Context context) {
-
+    //Intent mainActivity = new Intent(MainActivity.this, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);;
     try {
       //get destination to update file and set Uri
       //TODO: First I wanted to store my update .apk file on internal storage for my app but apparently android does not allow you to open and install
       //aplication with existing package from there. So for me, alternative solution is Download directory in external storage. If there is better
       //solution, please inform us in comment
       String destination = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/";
-      String fileName = mcompany + "_scansist.apk";
+      String fileName = mcompany + "_scansist_" + liveVersion + ".apk";
       destination += fileName;
       final Uri uri = Uri.parse("file://" + destination);
 
@@ -801,7 +844,7 @@ public class MainActivity extends Activity {
         file.delete();
       }
       //set downloadmanager
-      DownloadManager.Request request = new DownloadManager.Request(Uri.parse(releaseDownloadUrl));
+      DownloadManager.Request request = new DownloadManager.Request(Uri.parse(releaseDownloadUrl + liveVersion + ".apk"));
       request.setDescription("Latest Scansist™ Download");
       request.setTitle("ScanSist™");
 
@@ -817,21 +860,33 @@ public class MainActivity extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
           Intent install = new Intent(Intent.ACTION_VIEW);
-          install.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+          //install.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+          install.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
           install.setDataAndType(uri,
                   manager.getMimeTypeForDownloadedFile(downloadId));
+
           startActivity(install);
-          unregisterReceiver(this);
+          u.displayMessage(context,"ScanSist™ new version: v" + liveVersion +"\nPlease install and restart app");
+          try {
+            unregisterReceiver(this);
+          } catch(IllegalArgumentException e) {
+            e.printStackTrace();
+          }
           //This causes app crash!
           //finish();
         }
       };
       //register receiver for when .apk download is compete
-      registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
-      new DownloadTrunkDataTask().execute(downloadtrunkdata);
+      try {
+        registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+      } catch(IllegalArgumentException e) {
+        e.printStackTrace();
+      }
+      //nextScreen.putExtras(bundle);
+      //startActivity(mainActivity);
     } catch (Exception e) {
       e.printStackTrace();
-      new DownloadTrunkDataTask().execute(downloadtrunkdata);
+      //startActivity(mainActivity);
     }
   }
 }

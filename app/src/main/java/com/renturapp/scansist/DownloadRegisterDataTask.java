@@ -10,19 +10,21 @@ import org.apache.http.client.methods.HttpGet;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URL;
 
 /**
  * Created by wayne on 30/09/16.
  * This is used to download data from movesist.com
  */
 
-class DownloadDataTask extends AsyncTask<String, Void, String> {
+class DownloadRegisterDataTask extends AsyncTask<String, Void, String> {
+/*public AsyncResponse delegate = null;//Call back interface
+    public FTPFileUploadTask(AsyncResponse asyncResponse) {
+        delegate = asyncResponse;//Assigning call back interface through constructor
+    }*/
 
   @Override
   protected String doInBackground(String... params) {
 
-    URL website;
     StringBuilder response = null;
     try {
 
@@ -42,17 +44,19 @@ class DownloadDataTask extends AsyncTask<String, Void, String> {
       while ((inputLine = in.readLine()) != null)
         response.append(inputLine);
       in.close();
-
     } catch (Exception e) {
       e.printStackTrace();
     }
-    return response != null ? response.toString() : null;
-
+    if (response != null) {
+      return response.toString();
+    } else {
+      return "";
+    }
   }
 
   @Override
   protected void onPostExecute(String result) {
     //delegate.processFinish(result);
-    MyAsyncBus.getInstance().post(new DownloadDataTaskResultEvent(result));
+    MyAsyncBus.getInstance().post(new DownloadRegisterDataTaskResultEvent(result));
   }
 }

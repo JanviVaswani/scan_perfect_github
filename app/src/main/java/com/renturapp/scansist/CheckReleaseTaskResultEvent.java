@@ -5,13 +5,13 @@ package com.renturapp.scansist;
  * Default template
  */
 class CheckReleaseTaskResultEvent {
-    private final Long result;
+    private final String result;
 
-    public CheckReleaseTaskResultEvent(Long result) {
+    public CheckReleaseTaskResultEvent(String result) {
         this.result = result;
     }
 
-    public Long getResult() {
+    public String getResult() {
         return result;
     }
 }

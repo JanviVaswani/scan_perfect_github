@@ -9,7 +9,6 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
 import java.io.InputStream;
@@ -45,7 +44,7 @@ class RegisterScanSistTask extends AsyncTask<String, Void, Boolean> {
 
       try {
         HttpClient httpclient = new CustomHttpClient();
-        HttpPost httppost = new HttpPost("https://www.movesist.com/data/scansists/");
+        HttpPost httppost = new HttpPost(params[14]);
         httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
         HttpResponse response = httpclient.execute(httppost);
         HttpEntity entity = response.getEntity();

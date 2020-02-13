@@ -10,7 +10,6 @@ import android.content.pm.PackageManager;
 
 import android.content.res.Configuration;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
@@ -32,10 +31,13 @@ import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 import com.squareup.otto.Subscribe;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import static com.renturapp.scansist.MainActivity.urlExtension;
 
 public class ScanActivity extends Activity implements
         DecoratedBarcodeView.TorchListener {
@@ -63,10 +65,19 @@ public class ScanActivity extends Activity implements
     @Override
     public void barcodeResult(BarcodeResult result) {
 
+
+      if (inValidManifestDate()) {
+        u.messageBox(context, 3, false);
+        beepManager.playBeepSoundAndVibrate();
+        onPause();
+        return;
+      }
+
       if (result.getText() == null) {
         // Prevent nulls
         return;
       }
+
       if (result.getText().equals(lastText)) {
         // Prevent duplicate scans
         String stringCount = Integer.toString(scanCount);
@@ -79,7 +90,6 @@ public class ScanActivity extends Activity implements
         }
         scanCount++;
         updateScanInfo(scanCount);
-        return;
       } else {
         lastText = result.getText();
         if (lastText.length() == 15) {
@@ -164,7 +174,7 @@ public class ScanActivity extends Activity implements
     }
   }
   private void updateScanInfo(int s) {
-    lblScan.setText(Integer.toString(s) + " Scans");
+    lblScan.setText(s + " Scans");
   }
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -203,12 +213,12 @@ public class ScanActivity extends Activity implements
     int trunkNumber = intent.getIntExtra("trunkNumber", -1);
 
     if (trunkNumber!=-1) {
-      String trunkDescription = (String)intent.getStringExtra("trunkDescription");
+      String trunkDescription = intent.getStringExtra("trunkDescription");
       ((TextView) findViewById(R.id.lblScanTrunk)).setText(trunkDescription);
 
     } else {
       trunkNumber = sharedPref.getInt("trunkNumber", 0);
-      ((TextView) findViewById(R.id.lblScanTrunk)).setText("Trunk: " + Integer.toString(trunkNumber));
+      ((TextView) findViewById(R.id.lblScanTrunk)).setText("Trunk: " + trunkNumber);
     }
     mTrunk = String.format(Locale.UK, "%02d",trunkNumber);
 
@@ -312,7 +322,7 @@ public class ScanActivity extends Activity implements
     String depotNumber   = PreferenceManager.getDefaultSharedPreferences(context).getString("DepotNumber", "NothingFound");
     String scanSistCode =  String.valueOf(PreferenceManager.getDefaultSharedPreferences(context).getInt("ScanSistCode", 0));
 
-    String url      = "www.movesist.com";
+    String url      = "www.movesist" + urlExtension;
     String username = "clients";
     String userpass = "wdrcv227qt";
     String d = "/demo/users/scansist/Upload_" + depotNumber + "_" + uploadDateTime +"-001.xml";
@@ -382,14 +392,22 @@ public class ScanActivity extends Activity implements
   protected void onResume() {
     super.onResume();
     barcodeView.resume();
-    registerReceiver(networkStateReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
+    try {
+      registerReceiver(networkStateReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
+    } catch(IllegalArgumentException e) {
+      e.printStackTrace();
+    }
   }
 
   @Override
   protected void onPause() {
     super.onPause();
     barcodeView.pause();
-    unregisterReceiver(networkStateReceiver);
+    try {
+      unregisterReceiver(networkStateReceiver);
+    } catch(IllegalArgumentException e) {
+      e.printStackTrace();
+    }
   }
 
   private BroadcastReceiver networkStateReceiver=new BroadcastReceiver() {
@@ -445,7 +463,27 @@ public class ScanActivity extends Activity implements
     f.setIcon(R.drawable.flashon);
     f.setTitle(R.string.turn_off_flashlight);
   }
+  private Boolean inValidManifestDate() {
 
+    /* Compare Dates of scans*/
+    try {
+      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.UK);
+      Date date = sdf.parse(mManifestDate);
+      Date today = new Date();
+      int difference=
+        ((int)((date.getTime()/(24*60*60*1000))
+          -(int)(today.getTime()/(24*60*60*1000))));
+      if (difference<0) {
+        return true;
+      } else {
+        return false;
+
+      }
+    } catch (ParseException e) {
+      e.printStackTrace();
+      return false;
+    }
+  }
   public void onWizardButtonClicked(View v) {
     // Check which radio button was clicked
     View vb = findViewById(R.id.barcode_scanner);
@@ -455,10 +493,15 @@ public class ScanActivity extends Activity implements
         onBackPressed();
         break;
       case R.id.btnNext:
-        u.messageBox(context,true,false);
+        if (inValidManifestDate()) {
+          u.messageBox(context,3,false);
+          beepManager.playBeepSoundAndVibrate();
+        } else {
+          u.messageBox(context, 1, false);
+        }
         break;
       case R.id.btnCancel:
-        u.messageBox(context,false,false);
+        u.messageBox(context,2,false);
         break;
       default:
         throw new RuntimeException("Unknow button ID");
@@ -486,20 +529,37 @@ public class ScanActivity extends Activity implements
     MenuItem f = u.getFlash();
     MenuItem b = u.getBarCode();
 
-    switch (item.getItemId()) {
+
+
+
+    //FragmentTransaction ft;
+    int id = item.getItemId();
+    Intent nextScreen;
+    switch (id) {
       case R.id.action_settings:
-        // User chose the "Settings" item, show the app settings UI...
-        return true;
+        nextScreen = new Intent(ScanActivity.this, SettingsActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        //nextScreen.putExtras(bundle);
+        startActivity(nextScreen);
+        //finish();
+        break;
       case R.id.action_about:
-        // User chose the "Settings" item, show the app settings UI...
-        return true;
+        nextScreen = new Intent(ScanActivity.this, AboutActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        //nextScreen.putExtras(bundle);
+        startActivity(nextScreen);
+        //finish();
+        break;
+      case R.id.action_licence:
+        nextScreen = new Intent(ScanActivity.this, LicenceActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        //nextScreen.putExtras(bundle);
+        startActivity(nextScreen);
+        //finish();
+        break;
       case R.id.action_home:
         // User choose the "Setup home Option" action, go to home screen
         //changeMenuItemState(h, false, true, false);
         //Intent homeScreen = new Intent(ScanActivity.this,MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         //startActivity(homeScreen);
         //finish();
-
         onBackPressed();
         return true;
       case R.id.action_barcode:
@@ -514,8 +574,8 @@ public class ScanActivity extends Activity implements
           u.changeMenuItemState(b,true,true ,false);
           pause(v);
         }
-
-        return true;
+        //return true;
+        break;
       case R.id.action_flash:
 
         if (f.getTitle().equals(getString(R.string.turn_on_flashlight))) {
@@ -523,13 +583,15 @@ public class ScanActivity extends Activity implements
         } else {
           barcodeView.setTorchOff();
         }
-
-        return true;
+        //return true;
+        break;
       default:
         // If we got here, the user's action was not recognized.
         // Invoke the superclass to handle it.
-        return super.onOptionsItemSelected(item);
+        break;
+
     }
+    return super.onOptionsItemSelected(item);
   }
 
   @Override
