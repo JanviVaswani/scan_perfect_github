@@ -34,8 +34,10 @@ android {
     //2020-02-13 New Version 17- 2.3  "Intrim test versions"
     //2020-02-13 New Version 18- 2.4  "Intrim test versions"
     //2020-02-13 New Version 19- 2.5  "Clear Scan if old scans and Finish is pressed - Auto-updating"
-    versionCode 19
-    versionName "2.5"
+    //2020-03-30 New Version 20- 2.6  "Time zone issue BST"
+    //2020-03-30 New Version 21- 2.7  "Time zone issue GMT+01:00"
+    versionCode 21
+    versionName "2.7"
         //testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     signingConfig signingConfigs.config
   }

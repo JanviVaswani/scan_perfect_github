@@ -33,6 +33,7 @@ import com.squareup.otto.Subscribe;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -470,9 +471,14 @@ public class ScanActivity extends Activity implements
       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.UK);
       Date date = sdf.parse(mManifestDate);
       Date today = new Date();
+      int bstOffSet = 0;
+      if (today.toString().contains("BST") || today.toString().contains("GMT+01:00") ) {
+        bstOffSet= 36000000;
+      }
       int difference=
-        ((int)((date.getTime()/(24*60*60*1000))
+        ((int)(((date.getTime()+bstOffSet)/(24*60*60*1000))
           -(int)(today.getTime()/(24*60*60*1000))));
+
       if (difference<0) {
         return true;
       } else {
