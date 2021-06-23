@@ -60,7 +60,7 @@ public class ScanActivity extends Activity implements
   //private MainActivity mA;
   private Context context;
 
-  private String mTrunk,mManifestDate,mDirection,mStatus;
+  private String mRack,mManifestDate,mDirection,mStatus;
 
   private BarcodeCallback callback = new BarcodeCallback() {
     @Override
@@ -211,17 +211,17 @@ public class ScanActivity extends Activity implements
       }
     }
 
-    int trunkNumber = intent.getIntExtra("trunkNumber", -1);
+    int rackID = intent.getIntExtra("rackID", -1);
 
-    if (trunkNumber!=-1) {
-      String trunkDescription = intent.getStringExtra("trunkDescription");
-      ((TextView) findViewById(R.id.lblScanTrunk)).setText(trunkDescription);
+    if (rackID!=-1) {
+      String rackDescription = intent.getStringExtra("rackDescription");
+      ((TextView) findViewById(R.id.lblScanRack)).setText(rackDescription);
 
     } else {
-      trunkNumber = sharedPref.getInt("trunkNumber", 0);
-      ((TextView) findViewById(R.id.lblScanTrunk)).setText("Trunk: " + trunkNumber);
+      rackID = sharedPref.getInt("rackID", 0);
+      ((TextView) findViewById(R.id.lblScanRack)).setText("Rack: " + rackID);
     }
-    mTrunk = String.format(Locale.UK, "%02d",trunkNumber);
+    mRack = String.format(Locale.UK, "%02d",rackID);
 
     String scanDateTime = intent.getStringExtra("scanDateTime");
 
@@ -286,24 +286,24 @@ public class ScanActivity extends Activity implements
     switch (status) {
 
       case 0:
-        t.setText(getString(R.string.from_hub));
-        mDirection = getString(R.string.from_hub_direction);
-        mStatus = getString(R.string.from_hub_status);
+        t.setText(getString(R.string.into_location));
+        mDirection = getString(R.string.into_location_direction);
+        mStatus = getString(R.string.into_location_status);
         break;
       case 1:
-        t.setText(getString(R.string.to_hub));
-        mDirection = getString(R.string.to_hub_direction);
-        mStatus = getString(R.string.to_hub_status);
+        t.setText(getString(R.string.check_rack_goods));
+        mDirection = getString(R.string.check_rack_goods_direction);
+        mStatus = getString(R.string.check_rack_goods_status);
         break;
       case 2:
-        t.setText(getString(R.string.onto_delivery));
-        mDirection = getString(R.string.onto_delivery_direction);
-        mStatus = getString(R.string.onto_delivery_status);
+        t.setText(getString(R.string.check_goods));
+        mDirection = getString(R.string.check_goods_direction);
+        mStatus = getString(R.string.check_goods_status);
         break;
       default:
-        t.setText(getString(R.string.from_hub));
-        mDirection = getString(R.string.from_hub_direction);
-        mStatus = getString(R.string.from_hub_status);
+        t.setText(getString(R.string.into_location));
+        mDirection = getString(R.string.into_location_direction);
+        mStatus = getString(R.string.into_location_status);
         break;
     }
 
@@ -340,7 +340,7 @@ public class ScanActivity extends Activity implements
         d,
         mDirection,
         mStatus,
-        mTrunk,
+        mRack,
         mManifestDate,
         depotNumber,
         scanSistCode);

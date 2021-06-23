@@ -8,21 +8,21 @@ import android.widget.BaseAdapter;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
-public class ListScanAdapter extends BaseAdapter implements SpinnerAdapter {
+public class ListRackAdapter extends BaseAdapter implements SpinnerAdapter {
 
     private final Utility u;
 
-    ListScanAdapter(Utility u) { this.u = u; }
+    ListRackAdapter(Utility u) { this.u = u; }
 
     @Override
     public int getCount() {
-        return  u.scans.size();
+        return  u.racks.size();
     }
 
     @Override
     public Object getItem(int position) {
         //return null;
-        return u.scans.get(position);
+        return u.racks.get(position);
     }
 
     @Override
@@ -36,7 +36,6 @@ public class ListScanAdapter extends BaseAdapter implements SpinnerAdapter {
     static class ViewHolderItem {
 
         TextView ID;
-        TextView Code;
         TextView Description;
 
     }
@@ -49,7 +48,6 @@ public class ListScanAdapter extends BaseAdapter implements SpinnerAdapter {
             convertView = inflater.inflate(R.layout.cell, null);
 
             holder.ID = (TextView) convertView.findViewById(R.id.ID);
-            holder.Code = (TextView) convertView.findViewById(R.id.Code);
             holder.Description = (TextView) convertView.findViewById(R.id.Description);
             convertView.setTag(holder);
         }
@@ -57,9 +55,8 @@ public class ListScanAdapter extends BaseAdapter implements SpinnerAdapter {
         {
             holder = (ViewHolderItem) convertView.getTag();
         }
-        holder.ID.setText(String.valueOf(this.u.scans.get(position).scanID));
-        holder.Code.setText(String.valueOf(this.u.scans.get(position).clauseCode));
-        holder.Description.setText(String.valueOf(this.u.scans.get(position).scanBarCode));
+        holder.ID.setText(String.valueOf(this.u.racks.get(position).rackID));
+        holder.Description.setText(String.valueOf(this.u.racks.get(position).rackDescription));
 
         return convertView;
     }

@@ -5,11 +5,11 @@ package com.renturapp.scansist;
  * This is used to download data from movesist.com
  */
 
-class DownloadTrunkDataTaskResultEvent {
+class DownloadPickListDataTaskResultEvent {
 
   private final String result;
 
-  public DownloadTrunkDataTaskResultEvent(String result) {
+  public DownloadPickListDataTaskResultEvent(String result) {
     this.result = result;
   }
 

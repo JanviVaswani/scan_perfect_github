@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/ScanSist.iml" filepath="$PROJECT_DIR$/ScanSist.iml" group="ScanSist" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="ScanSist/app" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/wmScanSist.iml" filepath="$PROJECT_DIR$/.idea/modules/wmScanSist.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/wmScanSist.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/wmScanSist.app.iml" />
     </modules>
   </component>
 </project>

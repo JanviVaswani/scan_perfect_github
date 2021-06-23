@@ -22,7 +22,7 @@ class ScanFTPFileUploadTask extends AsyncTask<String, Void, Boolean> {
   //4  - Filename
   //5  - Direction
   //6  - Status
-  //7  - Trunk
+  //7  - Rack
   //8  - ManifestDate
   //9  - DepotNumber
   //10 - ScanSistCode
@@ -51,7 +51,7 @@ class ScanFTPFileUploadTask extends AsyncTask<String, Void, Boolean> {
           data.append("   <Manifest>\n");
           data.append("    <ManifestNo></ManifestNo>\n");
           data.append("    <Depot>").append(params[9]).append("</Depot>\n");
-          data.append("    <Trunk>").append(params[7]).append("</Trunk>\n");
+          data.append("    <Rack>").append(params[7]).append("</Rack>\n");
           data.append("    <ManifestDate>").append(params[8]).append("</ManifestDate>\n");
           data.append("    <Direction>").append(params[5]).append("</Direction>\n");
           data.append("    <Downloaded></Downloaded>\n");

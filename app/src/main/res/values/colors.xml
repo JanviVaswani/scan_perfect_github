@@ -4,6 +4,9 @@
   <color name="colorPrimary">#3F51B5</color>
   <color name="colorPrimaryDark">#303F9F</color>
   <color name="colorAccent">#FF4081</color>
+
+  <color name="colorScanSist">#BF1E80</color>
+
   <color name="skyBlue">#87CEEB</color>
 
   <color name="white">#FFFFFF</color>

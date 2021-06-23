@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">ScanSist™</string>
+    <string name="app_download">Latest ScanSist™ Download</string>
     <string name="scan">Scan Barcode</string>
     <string name="scan_about">About</string>
     <string name="scan_settings">Settings</string>
@@ -17,25 +18,31 @@
     <string name="menu_licence">Licence</string>
 
     <string name="title">Title</string>
-    <string name="manifest_date">Manifest Date:</string>
+    <string name="manifest_date">Scan Date:</string>
     <string name="manifestDate">(DD/MM/YY)</string>
 
-    <string name="scan_freight">Scan Freight</string>
+    <string name="scan_freight">Scan Warehouse Goods</string>
     <string name="scan_pause">Pause</string>
     <string name="scan_resume">Resume</string>
     <string name="progress_title">ScanSist™ - Barcode Scannng Assistant</string>
     <!-- Scan Menu-->
-    <string name="from_hub">From Hub</string>
-    <string name="from_hub_direction">X</string>
-    <string name="from_hub_status">DSI</string>
+    <string name="into_location">Scan Goods Into Rack Location</string>
+    <string name="into_location_direction">X</string>
+    <string name="into_location_status">DSI</string>
 
-    <string name="to_hub">To Hub</string>
-    <string name="to_hub_direction">T</string>
-    <string name="to_hub_status">DSO</string>
+    <string name="check_rack_goods">Check Goods at Rack Location</string>
+    <string name="check_rack_goods_direction">T</string>
+    <string name="check_rack_goods_status">DSO</string>
 
-    <string name="onto_delivery">Onto Delivery Vehicle</string>
-    <string name="onto_delivery_direction">D</string>
-    <string name="onto_delivery_status">SCDV</string>
+    <string name="check_goods">Check Goods</string>
+    <string name="check_goods_direction">D</string>
+    <string name="check_goods_status">SCDV</string>
+
+    <string name="goods_out">Check Goods Out</string>
+    <string name="goods_out_direction">D</string>
+    <string name="_goods_out_location_status">SCDV</string>
+
+
 
     <string name="action_barcode">Scan</string>
     <!-- Wizard Buttons -->

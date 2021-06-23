@@ -25,7 +25,7 @@
         android:layout_below="@id/lblTitle">
     </com.journeyapps.barcodescanner.DecoratedBarcodeView>
     <TextView
-        android:id="@+id/lblScanTrunk"
+        android:id="@+id/lblScanRack"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="left"

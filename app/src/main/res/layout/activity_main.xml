@@ -18,21 +18,26 @@
        android:layout_height="wrap_content"
        android:gravity="center"
        >
-        <RadioButton android:id="@+id/rBtnFromHub"
+        <RadioButton android:id="@+id/rBtnIntoLocation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/from_hub"
-            android:width="200sp" android:onClick="onRadioButtonClicked"/>
-        <RadioButton android:id="@+id/rBtnToHub"
+            android:text="@string/into_location"
+            android:width="250sp" android:onClick="onRadioButtonClicked"/>
+        <RadioButton android:id="@+id/rBtnCheckRackGoods"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/to_hub"
-            android:width="200sp" android:onClick="onRadioButtonClicked"/>
-        <RadioButton android:id="@+id/rBtnOntoDelivery"
+            android:text="@string/check_rack_goods"
+            android:width="250sp" android:onClick="onRadioButtonClicked"/>
+        <RadioButton android:id="@+id/rBtnCheckGoods"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/onto_delivery"
-            android:width="200sp" android:onClick="onRadioButtonClicked"/>
+            android:text="@string/check_goods"
+            android:width="250sp" android:onClick="onRadioButtonClicked"/>
+        <RadioButton android:id="@+id/rBtnGoodsOut"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/goods_out"
+            android:width="250sp" android:onClick="onRadioButtonClicked"/>
     </RadioGroup>
     <View
         android:id="@+id/view"
@@ -40,7 +45,7 @@
         android:layout_height="10dp"
         />
     <Spinner
-        android:id="@+id/spnTrunk"
+        android:id="@+id/spnRack"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:textSize="30sp"

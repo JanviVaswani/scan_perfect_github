@@ -33,15 +33,18 @@ import java.util.TimerTask;
 //https://github.com/codepath/android_guides/wiki/Understanding-the-Android-Application-Class
 public class Utility extends Application {
 
-  public ArrayList<Trunk> trunks = new ArrayList<Trunk>();
-  public ListTrunkAdapter trunkAdapter;
+  public ArrayList<Rack> racks = new ArrayList<Rack>();
+  public ListRackAdapter rackAdapter;
+  public ArrayList<PickList> pickLists = new ArrayList<PickList>();
+  public ListPickListAdapter pickListAdapter;
+
   public ArrayList<Clause> clauses = new ArrayList<Clause>();
   public ListClauseAdapter clauseAdapter;
   public ArrayList<Scan> scans = new ArrayList<Scan>();
   public ListScanAdapter scanAdapter;
 
   public Utility() {
-    //setupTrunks();
+    //setupRacks();
   }
 
   public String tmLineNumber;
@@ -290,7 +293,7 @@ public class Utility extends Application {
         break;
       case 1:
         clauses.add(new Clause(0, "    ", "Select a Clause for the Pallet/Parcel"));
-        clauses.add(new Clause(4, "DRFT", "Depot Removed From Trunk"));
+        clauses.add(new Clause(4, "DRFT", "Depot Removed From Rack"));
         clauses.add(new Clause(5, "DACD", "Damaged on Collecting At Depot"));
         clauses.add(new Clause(10, "NOPW", "No Customer Paperwork"));
         break;
@@ -384,28 +387,28 @@ public class Utility extends Application {
         return sa.toString();
     }
 
-    public void setupTrunks(String trunksJson) {
-        trunks.clear();
+    public void setupRacks(String racksJson) {
+        racks.clear();
         try {
             //JSONObject s = new JSONObject(scansJson);
-            JSONArray ta = new JSONArray(trunksJson);
+            JSONArray ta = new JSONArray(racksJson);
             for (int i=0; i<ta.length();i++){
                 JSONObject t = ta.getJSONObject(i);
-                trunks.add(new Trunk(
-                    t.getInt("trunkNumber"),
-                    t.getString("trunkDescription")));
+                racks.add(new Rack(
+                    t.getInt("rackID"),
+                    t.getString("rackDescription")));
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        trunkAdapter.notifyDataSetChanged();
+        rackAdapter.notifyDataSetChanged();
     }
   public boolean isOnline() {
     ConnectivityManager cm =
         (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
     return cm != null && cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnectedOrConnecting();
   }
-  public String saveTrunks () {
+  public String saveRacks () {
     // Create object of SharedPreferences.
     SharedPreferences sharedPref= getApplicationContext().getSharedPreferences("ScanSist",MODE_PRIVATE);
     //now get Editor
@@ -413,17 +416,17 @@ public class Utility extends Application {
 
     /*Save Logic*/
     JSONArray ta = new JSONArray();
-    for (Trunk t: trunks) {
+    for (Rack t: racks) {
       JSONObject tc= new JSONObject();
       try {
-        tc.put("trunkNumber",t.trunkNumber);
-        tc.put("trunkDescription",t.trunkDescription);
+        tc.put("rackID",t.rackID);
+        tc.put("rackDescription",t.rackDescription);
       } catch (JSONException e){
         e.printStackTrace();
       }
       ta.put(tc);
     }
-    editor.putString("trunks",ta.toString());
+    editor.putString("racks",ta.toString());
     editor.apply();
     return ta.toString();
   }

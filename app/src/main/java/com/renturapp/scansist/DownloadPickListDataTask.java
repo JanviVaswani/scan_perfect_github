@@ -12,7 +12,7 @@ import java.net.URL;
  * This is used to download data from movesist.com
  */
 
-class DownloadTrunkDataTask extends AsyncTask<String, Void, String> {
+class DownloadPickListDataTask extends AsyncTask<String, Void, String> {
 /*public AsyncResponse delegate = null;//Call back interface
     public FTPFileUploadTask(AsyncResponse asyncResponse) {
         delegate = asyncResponse;//Assigning call back interface through constructor
@@ -50,6 +50,6 @@ class DownloadTrunkDataTask extends AsyncTask<String, Void, String> {
   @Override
   protected void onPostExecute(String result) {
     //delegate.processFinish(result);
-    MyAsyncBus.getInstance().post(new DownloadTrunkDataTaskResultEvent(result));
+    MyAsyncBus.getInstance().post(new DownloadPickListDataTaskResultEvent(result));
   }
 }

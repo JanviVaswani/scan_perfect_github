@@ -8,21 +8,21 @@ import android.widget.BaseAdapter;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
-public class ListTrunkAdapter extends BaseAdapter implements SpinnerAdapter {
+public class ListPickListAdapter extends BaseAdapter implements SpinnerAdapter {
 
     private final Utility u;
 
-    ListTrunkAdapter(Utility u) { this.u = u; }
+    ListPickListAdapter(Utility u) { this.u = u; }
 
     @Override
     public int getCount() {
-        return  u.trunks.size();
+        return  u.pickLists.size();
     }
 
     @Override
     public Object getItem(int position) {
         //return null;
-        return u.trunks.get(position);
+        return u.pickLists.get(position);
     }
 
     @Override
@@ -30,7 +30,7 @@ public class ListTrunkAdapter extends BaseAdapter implements SpinnerAdapter {
         return position;
         //return 0;
         //http://stackoverflow.com/questions/6497871/create-adapter-to-fill-spinner-with-objects
-        //return main.trunks.get(position).getId();
+        //return main.pickLists.get(position).getId();
     }
 
     static class ViewHolderItem {
@@ -55,8 +55,8 @@ public class ListTrunkAdapter extends BaseAdapter implements SpinnerAdapter {
         {
             holder = (ViewHolderItem) convertView.getTag();
         }
-        holder.ID.setText(String.valueOf(this.u.trunks.get(position).trunkNumber));
-        holder.Description.setText(String.valueOf(this.u.trunks.get(position).trunkDescription));
+        holder.ID.setText(String.valueOf(this.u.pickLists.get(position).pickListID));
+        holder.Description.setText(String.valueOf(this.u.pickLists.get(position).pickListDescription));
 
         return convertView;
     }
