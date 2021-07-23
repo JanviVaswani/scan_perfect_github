@@ -141,7 +141,7 @@ public class ScanGoodsActivity extends Activity implements
         }
       }
       else{
-        Toast.makeText(ScanGoodsActivity.this, "Not a Good Barcode", Toast.LENGTH_SHORT).show();
+        Toast.makeText(ScanGoodsActivity.this, "Not a Goods Barcode", Toast.LENGTH_SHORT).show();
         beepManager.playBeepSoundAndVibrate();
         lastTimestamp = System.currentTimeMillis();
         return;
