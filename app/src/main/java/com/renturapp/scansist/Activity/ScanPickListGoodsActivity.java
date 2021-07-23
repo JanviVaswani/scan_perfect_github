@@ -368,8 +368,10 @@ public class ScanPickListGoodsActivity extends Activity implements
             u.displayMessage(context, "Upload Successfully Completed");
 
             //Clear Lists
-            u.scanpicklistgoods=Collections.EMPTY_LIST;
-            u.scannedgoodoutList=Collections.EMPTY_LIST;
+            //u.scanpicklistgoods=Collections.EMPTY_LIST;
+            u.scanpicklistgoods=new ArrayList<>();
+            //u.scannedgoodoutList=Collections.EMPTY_LIST;
+            u.scannedgoodoutList=new ArrayList<>();
 
             // Clear shared preferences
             SharedPreferences sharedPref = context.getApplicationContext().getSharedPreferences("ScanSist", 0);
