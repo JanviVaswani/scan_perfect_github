@@ -10,7 +10,6 @@ import android.widget.Button;
 
 public class AboutActivity extends Activity {
 
-  //private MainActivity mA;
   private Context context;
   private Button btnClose;
 
