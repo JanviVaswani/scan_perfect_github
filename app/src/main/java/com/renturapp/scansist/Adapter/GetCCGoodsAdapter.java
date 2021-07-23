@@ -50,8 +50,10 @@ public class GetCCGoodsAdapter extends ArrayAdapter<GetCCGoodsModel> {
 
         one.setText("Shipment ID: " + current.cCRequestID.toString());
         two.setText("No. Pieces: " + current.cCGoodQuantity.toString());
-        three.setText("Consignee: " + current.buyerStreet.replace("\n", ""));
-        four.setText("Shipper: " + current.sellerStreet.replace("\n", ""));
+        three.setText("Consignee: " + current.buyerStreet);
+        //three.setText("Consignee: " + current.buyerStreet.replace("\n", ""));
+        four.setText("Shipper: " + current.sellerStreet);
+        //four.setText("Shipper: " + current.sellerStreet.replace("\n", ""));
 
 
         convertView.setOnClickListener(new View.OnClickListener() {

@@ -91,13 +91,13 @@ public class GetCCGoodsLocationsActivity extends Activity {
         if (goodSellerStreetValue.equals("null")) {
             goodSellerStreet.setText("Shipper: " + "");
         } else {
-            goodSellerStreet.setText("Shipper: " + goodSellerStreetValue.replace("\n", ""));
+            goodSellerStreet.setText("Shipper: " + goodSellerStreetValue);
         }
 
         if (goodBuyerStreetValue.equals("null")) {
             goodBuyerStreet.setText("Consignee: " + "");
         } else {
-            goodBuyerStreet.setText("Consignee: " + goodBuyerStreetValue.replace("\n", ""));
+            goodBuyerStreet.setText("Consignee: " + goodBuyerStreetValue);
         }
 
         rackGoodsDetails.setText(rackDescriptionValue + " Goods List");
