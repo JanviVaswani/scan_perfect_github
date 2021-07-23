@@ -253,9 +253,9 @@ public class GetCCGoodsActivity extends Activity {
                 ScanGoodsModel goodsModel = new ScanGoodsModel();
 
                 String gstatus = json_data.getString("CCGoodStatus");
-                goodsModel.cCGoodRackID = Integer.parseInt(String.valueOf((json_data.getString("CCGoodRackID"))=="null"?0:(json_data.getString("CCGoodRackID"))));
+                //goodsModel.cCGoodRackID = Integer.parseInt(String.valueOf((json_data.getString("CCGoodRackID"))=="null"?0:(json_data.getString("CCGoodRackID"))));
 
-                    if (gstatus.equals("1") && goodsModel.cCGoodRackID!=0) {
+                    if (gstatus.equals("1")) {
                         goodsModel.cCGoodID = json_data.getInt("CCGoodID");
                         goodsModel.cCGoodQuantity = json_data.getInt("CCGoodQuantity");
                         goodsModel.buyerStreet = json_data.getString("BuyerStreet");
@@ -272,7 +272,7 @@ public class GetCCGoodsActivity extends Activity {
                         goodsModel.cCGoodValue = json_data.getInt("CCGoodValue");
                         goodsModel.cCGoodBarcode = json_data.getString("CCGoodBarcode");
                         goodsModel.companyID = json_data.getInt("CompanyID");
-                        //goodsModel.cCGoodRackID = Integer.parseInt(String.valueOf((json_data.getString("CCGoodRackID"))=="null"?0:(json_data.getString("CCGoodRackID"))));
+                        goodsModel.cCGoodRackID = Integer.parseInt(String.valueOf((json_data.getString("CCGoodRackID"))=="null"?0:(json_data.getString("CCGoodRackID"))));
                         goodsModel.cCGoodPickListID = json_data.getInt("CCGoodPickListID");
                         goodsModel.cCGoodStatus = "2";
 
