@@ -20,9 +20,7 @@ class FTPFileUploadTask extends AsyncTask<String, Void, Boolean> {
         FTPClient con = new FTPClient();
 
         try {
-
             con.connect(InetAddress.getByName(params[0]));
-
             if (con.login(params[1], params[2])) {
                 con.enterLocalPassiveMode();
                 String data = params[3];
@@ -32,8 +30,6 @@ class FTPFileUploadTask extends AsyncTask<String, Void, Boolean> {
                 if (result) {
                     result = con.sendSiteCommand("chmod 604 " + params[4]);
                 }
-                // if (result)
-                // System.out.println("upload result: " + result);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -50,7 +46,6 @@ class FTPFileUploadTask extends AsyncTask<String, Void, Boolean> {
 
     @Override
     protected void onPostExecute(Boolean result) {
-        //delegate.processFinish(result);
         MyAsyncBus.getInstance().post(new FTPFileUploadTaskResultEvent(result));
     }
 }

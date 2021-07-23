@@ -3,7 +3,7 @@ package com.renturapp.scansist;
 /**
  * Created by Wayne on 10/08/2015.
  */
-class ScanFTPFileUploadTaskResultEvent {
+public class ScanFTPFileUploadTaskResultEvent {
     private final Boolean result;
 
     public ScanFTPFileUploadTaskResultEvent(Boolean result) {

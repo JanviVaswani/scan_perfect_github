@@ -1,4 +1,4 @@
-package com.renturapp.scansist;
+package com.renturapp.scansist.Adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,15 +8,20 @@ import android.widget.BaseAdapter;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
+import com.renturapp.scansist.R;
+import com.renturapp.scansist.Utility;
+
 public class ListRackAdapter extends BaseAdapter implements SpinnerAdapter {
 
     private final Utility u;
 
-    ListRackAdapter(Utility u) { this.u = u; }
+    public ListRackAdapter(Utility u) {
+        this.u = u;
+    }
 
     @Override
     public int getCount() {
-        return  u.racks.size();
+        return u.racks.size();
     }
 
     @Override
@@ -41,7 +46,7 @@ public class ListRackAdapter extends BaseAdapter implements SpinnerAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent){
+    public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolderItem holder = new ViewHolderItem();
         if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) u.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -50,9 +55,7 @@ public class ListRackAdapter extends BaseAdapter implements SpinnerAdapter {
             holder.ID = (TextView) convertView.findViewById(R.id.ID);
             holder.Description = (TextView) convertView.findViewById(R.id.Description);
             convertView.setTag(holder);
-        }
-        else
-        {
+        } else {
             holder = (ViewHolderItem) convertView.getTag();
         }
         holder.ID.setText(String.valueOf(this.u.racks.get(position).rackID));

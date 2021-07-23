@@ -6,15 +6,18 @@
     <!-- Min/target SDK versions (<uses-sdk>) managed by build.gradle -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <!-- required for registration -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
         <!--<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />-->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
+    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <!--Camera -->
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:allowBackup="true"
@@ -32,7 +35,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
            </intent-filter>
         </activity>
-        <activity android:name=".ScanActivity"
+        <activity android:name=".Activity.ScanActivity"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize|screenLayout|uiMode"
             android:theme="@style/RentUrAppTheme" />
         <activity
@@ -51,6 +54,25 @@
         <activity android:name=".RegisterScanSistActivity"
           android:configChanges="orientation|keyboard|keyboardHidden|screenSize|screenLayout|uiMode"
           android:theme="@style/RentUrAppTheme" />
+
+        <activity android:name=".Activity.ScanGoodsActivity"
+            android:configChanges="orientation|keyboard|keyboardHidden|screenSize|screenLayout|uiMode"
+            android:theme="@style/RentUrAppTheme" />
+        <activity android:name=".Activity.GetCCGoodsActivity"
+            android:configChanges="orientation|keyboard|keyboardHidden|screenSize|screenLayout|uiMode"
+            android:theme="@style/RentUrAppTheme" />
+        <activity android:name=".Activity.GetCCGoodsLocationsActivity"
+            android:configChanges="orientation|keyboard|keyboardHidden|screenSize|screenLayout|uiMode"
+            android:theme="@style/RentUrAppTheme" />
+        <activity android:name=".Activity.ScanRackLocationRadioOneActivity"
+            android:configChanges="orientation|keyboard|keyboardHidden|screenSize|screenLayout|uiMode"
+            android:theme="@style/RentUrAppTheme" />
+        <activity android:name=".Activity.ScanGoodsForRackLocationRadioOneActivity"
+            android:configChanges="orientation|keyboard|keyboardHidden|screenSize|screenLayout|uiMode"
+            android:theme="@style/RentUrAppTheme" />
+        <activity android:name=".Activity.ScanPickListGoodsActivity"
+            android:configChanges="orientation|keyboard|keyboardHidden|screenSize|screenLayout|uiMode"
+            android:theme="@style/RentUrAppTheme" />
 
     </application>
 

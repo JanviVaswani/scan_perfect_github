@@ -1,0 +1,44 @@
+package com.renturapp.scansist.Model;
+
+public class GetCCGoodsLocationModel {
+    Integer gRowNum;
+    public Integer cCGoodID;
+    public Integer cCRequestID;
+    Integer companyID;
+    Integer accountID;
+    public Integer cCGoodQuantity;
+    public Integer cCGoodLength;
+    public Integer cCGoodWidth;
+    public Integer cCGoodHeight;
+    String cCGoodShippingMarks;
+    String cCGoodCountryOrigin;
+    Integer cCGoodRackID;
+    Integer cCGoodPickListID;
+    Boolean cCGoodAllocated;
+    Object pickListDescription;
+    String rackDescription;
+    String cCGoodCountryDispatch;
+    String cCGoodDestination;
+    String cCGoodCode;
+    public String cCGoodDescription;
+    String cCRequestValueCurrency;
+    String cCRequestFreightCurrency;
+    String cCRequestInsuranceCurrency;
+    Integer cCGoodValue;
+    Integer cCGoodFreightCost;
+    Integer cCGoodInsuranceCost;
+    String cCGoodPackagingType;
+    Integer cCGoodNetWeight;
+    public Double cCGoodGrossWeight;
+    String cCGoodDeclaration;
+    String cCGoodTMRNumber;
+    Boolean cCGoodIsLicensable;
+    String cCGoodBarcode;
+    Object cCGoodStatus;
+    String buyerStreet;
+    String sellerStreet;
+    Integer getType;
+    Object postType;
+    Object putType;
+    Integer uKCommCodeID;
+}

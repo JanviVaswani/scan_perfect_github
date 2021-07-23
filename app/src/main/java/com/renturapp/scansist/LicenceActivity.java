@@ -10,33 +10,31 @@ import android.widget.Button;
 
 public class LicenceActivity extends Activity {
 
-  //private MainActivity mA;
-  Context context;
-  private Button btnClose;
+    Context context;
+    private Button btnClose;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    this.setContentView(R.layout.scansist_licence);
+        super.onCreate(savedInstanceState);
+        this.setContentView(R.layout.scansist_licence);
 
-    context = LicenceActivity.this;
+        context = LicenceActivity.this;
 
-      btnClose = (Button) findViewById(R.id.btnLicence);
-      btnClose.setOnClickListener( new View.OnClickListener() {
+        btnClose = (Button) findViewById(R.id.btnLicence);
+        btnClose.setOnClickListener(new View.OnClickListener() {
 
-        @Override
-        public void onClick(View v) {
-          btnClose.setAlpha(0.5f);
-          //LicenceActivity.super.onBackPressed();
-          finish();
-        }
-      });
-  }
+            @Override
+            public void onClick(View v) {
+                btnClose.setAlpha(0.5f);
+                finish();
+            }
+        });
+    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
-    super.onConfigurationChanged(newConfig);
-    getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-      WindowManager.LayoutParams.FLAG_FULLSCREEN);
-  }
+        super.onConfigurationChanged(newConfig);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    }
 }

@@ -7,14 +7,14 @@ package com.renturapp.scansist;
 
 class DownloadDataTaskResultEvent {
 
-  private final String result;
+    private final String result;
 
-  public DownloadDataTaskResultEvent(String result) {
-    this.result = result;
-  }
+    public DownloadDataTaskResultEvent(String result) {
+        this.result = result;
+    }
 
-  public String getResult() {
-    return result;
-  }
+    public String getResult() {
+        return result;
+    }
 
 }

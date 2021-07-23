@@ -22,21 +22,20 @@ import javax.net.ssl.X509TrustManager;
  */
 class CheckReleaseTask extends AsyncTask<String, Void, String> {
 
-    //public AsyncResponse delegate = null;//Call back interface
-    //public CheckLicenceTask(AsyncResponse asyncResponse) {
-    //delegate = asyncResponse;//Assigning call back interface through constructor
     @Override
     protected String doInBackground(String... urls) {
         String result = "";
         Boolean responseOK = false;
         try {
             // Create a trust manager that does not validate certificate chains
-            TrustManager[] trustAllCerts = new TrustManager[] {new X509TrustManager() {
+            TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
                 public java.security.cert.X509Certificate[] getAcceptedIssuers() {
                     return null;
                 }
+
                 public void checkClientTrusted(X509Certificate[] certs, String authType) {
                 }
+
                 public void checkServerTrusted(X509Certificate[] certs, String authType) {
                 }
             }
@@ -57,10 +56,9 @@ class CheckReleaseTask extends AsyncTask<String, Void, String> {
             // note : you may also need
             //        HttpURLConnection.setInstanceFollowRedirects(false)
             HttpsURLConnection con =
-              (HttpsURLConnection) new URL(urls[0]).openConnection();
+                    (HttpsURLConnection) new URL(urls[0]).openConnection();
             //http://stackoverflow.com/questions/17638398/androids-httpurlconnection-throws-eofexception-on-head-requests
-            con.setRequestProperty( "Accept-Encoding", "" );
-            //con.setRequestMethod("HEAD");
+            con.setRequestProperty("Accept-Encoding", "");
             responseOK = (con.getResponseCode() == HttpsURLConnection.HTTP_OK);
 
             if (responseOK) {
@@ -72,19 +70,17 @@ class CheckReleaseTask extends AsyncTask<String, Void, String> {
                 }
                 br.close();
                 String i = sb.toString();
-                result = i.substring(i.indexOf("<title>")+7,i.indexOf("</title>"));
-                //if (v.equals(urls[1])) {
-                //    result = true;
-                //}
+                result = i.substring(i.indexOf("<title>") + 7, i.indexOf("</title>"));
             }
-        } catch (Exception e) {e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
             e.printStackTrace();
         }
         return result;
     }
+
     @Override
     protected void onPostExecute(String result) {
-        //delegate.processFinish(result);
         MyAsyncBus.getInstance().post(new CheckReleaseTaskResultEvent(result));
     }
 }

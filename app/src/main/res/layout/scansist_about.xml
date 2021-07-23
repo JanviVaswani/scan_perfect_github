@@ -1,58 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent">
-
-  <TextView
-    android:id="@+id/lblTitleAbout"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center_horizontal"
-    android:text="@string/scan_about"
-    android:textSize="30sp"
-    android:textStyle="bold" />
+    android:layout_height="match_parent">
 
-  <ScrollView
-    android:id="@+id/id_about_scrollView"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:layout_below="@id/lblTitleAbout"
-    android:layout_above="@id/btnAbout">
-
-    <LinearLayout
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:orientation="vertical">
-
-      <TextView
-        android:id="@+id/id_about_textView_description"
+    <TextView
+        android:id="@+id/lblTitleAbout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="15dp"
-        android:autoLink="web"
-        android:gravity="center"
-        android:linksClickable="true"
-        android:text="@string/about_description"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:gravity="center_horizontal"
+        android:text="@string/scan_about"
+        android:textSize="30sp"
+        android:textStyle="bold" />
 
-      <TextView
-        android:id="@+id/id_about_textView_description_detail"
+    <ScrollView
+        android:id="@+id/id_about_scrollView"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_above="@id/btnAbout"
+        android:layout_below="@id/lblTitleAbout">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/id_about_textView_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="15dp"
+                android:autoLink="web"
+                android:gravity="center"
+                android:linksClickable="true"
+                android:text="@string/about_description"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <TextView
+                android:id="@+id/id_about_textView_description_detail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="15dp"
+
+                android:gravity="left"
+                android:text="@string/about_detail"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+        </LinearLayout>
+    </ScrollView>
+
+    <Button
+        android:id="@+id/btnAbout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="15dp"
-        android:layout_marginTop="15dp"
-
-        android:gravity="left"
-        android:text="@string/about_detail"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-    </LinearLayout>
-  </ScrollView>
-  <Button
-    android:id="@+id/btnAbout"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="@string/about_ok"
-    android:layout_alignParentBottom="true"
-    />
+        android:layout_alignParentBottom="true"
+        android:text="@string/about_ok" />
 </RelativeLayout>

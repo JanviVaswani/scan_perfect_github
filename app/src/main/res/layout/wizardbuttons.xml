@@ -3,30 +3,31 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
+
     <Button
         android:id="@+id/btnPrevious"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:text="@string/previous"
         android:onClick="onWizardButtonClicked"
+        android:text="@string/previous"
 
         />
+
     <Button
         android:id="@+id/btnNext"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:text="@string/next"
         android:onClick="onWizardButtonClicked"
-        />
+        android:text="@string/next" />
+
     <Button
         android:id="@+id/btnCancel"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:text="@string/cancel"
         android:onClick="onWizardButtonClicked"
-        />
+        android:text="@string/cancel" />
 
 </LinearLayout>

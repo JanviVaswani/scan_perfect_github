@@ -1,0 +1,45 @@
+package com.renturapp.scansist.Model;
+
+public class ScanGoodsModel {
+    Integer gRowNum;
+    public Integer cCGoodID;
+    public Integer cCRequestID;
+    public Integer companyID;
+    Integer accountID;
+    public Integer cCGoodQuantity;
+    public Integer cCGoodLength;
+    public Integer cCGoodWidth;
+    public Integer cCGoodHeight;
+    String cCGoodShippingMarks;
+    String cCGoodCountryOrigin;
+    public Integer cCGoodRackID;
+    public Object cCGoodPickListID;
+    Object cCGoodAllocated;
+    Object pickListDescription;
+    public String rackDescription;
+    String cCGoodCountryDispatch;
+    Object cCGoodDestination;
+    String cCGoodCode;
+    public String cCGoodDescription;
+    String cCRequestValueCurrency;
+    String cCRequestFreightCurrency;
+    String cCRequestInsuranceCurrency;
+    public Integer cCGoodValue;
+    Integer cCGoodFreightCost;
+    Integer cCGoodInsuranceCost;
+    public String cCGoodPackagingType;
+    public Double cCGoodNetWeight;
+    public Double cCGoodGrossWeight;
+    String cCGoodDeclaration;
+    String cCGoodTMRNumber;
+    Boolean cCGoodIsLicensable;
+    public String cCGoodBarcode;
+    public Object cCGoodStatus;
+    public Object buyerStreet;
+    public Object sellerStreet;
+    Integer getType;
+    Object postType;
+    Object putType;
+    Integer uKCommCodeID;
+    public String isGoodScanned = "N";
+}

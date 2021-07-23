@@ -1,4 +1,4 @@
-package com.renturapp.scansist;
+package com.renturapp.scansist.Adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,11 +8,14 @@ import android.widget.BaseAdapter;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
+import com.renturapp.scansist.R;
+import com.renturapp.scansist.Utility;
+
 public class ListPickListAdapter extends BaseAdapter implements SpinnerAdapter {
 
     private final Utility u;
 
-    ListPickListAdapter(Utility u) { this.u = u; }
+    public ListPickListAdapter(Utility u) { this.u = u; }
 
     @Override
     public int getCount() {
@@ -34,10 +37,8 @@ public class ListPickListAdapter extends BaseAdapter implements SpinnerAdapter {
     }
 
     static class ViewHolderItem {
-
         TextView ID;
         TextView Description;
-
     }
 
     @Override

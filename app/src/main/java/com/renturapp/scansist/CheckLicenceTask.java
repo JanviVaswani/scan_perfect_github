@@ -19,20 +19,19 @@ import javax.net.ssl.X509TrustManager;
  */
 class CheckLicenceTask extends AsyncTask<String, Void, Boolean> {
 
-    //public AsyncResponse delegate = null;//Call back interface
-    //public CheckLicenceTask(AsyncResponse asyncResponse) {
-        //delegate = asyncResponse;//Assigning call back interface through constructor
     @Override
     protected Boolean doInBackground(String... urls) {
         Boolean result = false;
         try {
             // Create a trust manager that does not validate certificate chains
-            TrustManager[] trustAllCerts = new TrustManager[] {new X509TrustManager() {
+            TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
                 public java.security.cert.X509Certificate[] getAcceptedIssuers() {
                     return null;
                 }
+
                 public void checkClientTrusted(X509Certificate[] certs, String authType) {
                 }
+
                 public void checkServerTrusted(X509Certificate[] certs, String authType) {
                 }
             }
@@ -52,20 +51,20 @@ class CheckLicenceTask extends AsyncTask<String, Void, Boolean> {
             HttpsURLConnection.setFollowRedirects(false);
             // note : you may also need
             //        HttpURLConnection.setInstanceFollowRedirects(false)
-            HttpsURLConnection con =
-              (HttpsURLConnection) new URL(urls[0]).openConnection();
+            HttpsURLConnection con = (HttpsURLConnection) new URL(urls[0]).openConnection();
             //http://stackoverflow.com/questions/17638398/androids-httpurlconnection-throws-eofexception-on-head-requests
-            con.setRequestProperty( "Accept-Encoding", "" );
+            con.setRequestProperty("Accept-Encoding", "");
             con.setRequestMethod("HEAD");
             result = (con.getResponseCode() == HttpsURLConnection.HTTP_OK);
-        } catch (Exception e) {e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
             e.printStackTrace();
         }
         return result;
     }
+
     @Override
     protected void onPostExecute(Boolean result) {
-        //delegate.processFinish(result);
         MyAsyncBus.getInstance().post(new CheckLicenceTaskResultEvent(result));
     }
 }

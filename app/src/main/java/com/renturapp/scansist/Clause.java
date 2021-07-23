@@ -1,12 +1,12 @@
 package com.renturapp.scansist;
 
 public class Clause {
-    int    clauseID;
+    public int clauseID;
     String clauseCode;
     String clauseDescription;
 
-    public Clause(int clauseID, String clauseCode,String clauseDescription ) {
-        this.clauseID   = clauseID;
+    public Clause(int clauseID, String clauseCode, String clauseDescription) {
+        this.clauseID = clauseID;
         this.clauseCode = clauseCode;
         this.clauseDescription = clauseDescription;
     }

@@ -19,40 +19,39 @@ import java.net.URL;
 
 class DownloadDataTask extends AsyncTask<String, Void, String> {
 
-  @Override
-  protected String doInBackground(String... params) {
+    @Override
+    protected String doInBackground(String... params) {
 
-    URL website;
-    StringBuilder response = null;
-    try {
+        URL website;
+        StringBuilder response = null;
+        try {
 
-      HttpClient httpclient = new CustomHttpClient();
-      HttpGet httpget = new HttpGet(params[0]);
+            HttpClient httpclient = new CustomHttpClient();
+            HttpGet httpget = new HttpGet(params[0]);
 
-      HttpResponse httpResponse = httpclient.execute(httpget);
-      HttpEntity entity = httpResponse.getEntity();
-      InputStream is = entity.getContent();
+            HttpResponse httpResponse = httpclient.execute(httpget);
+            HttpEntity entity = httpResponse.getEntity();
+            InputStream is = entity.getContent();
 
-      BufferedReader in = new BufferedReader(
-        new InputStreamReader(
-          is));
-      response = new StringBuilder();
-      String inputLine;
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(
+                            is));
+            response = new StringBuilder();
+            String inputLine;
 
-      while ((inputLine = in.readLine()) != null)
-        response.append(inputLine);
-      in.close();
+            while ((inputLine = in.readLine()) != null)
+                response.append(inputLine);
+            in.close();
 
-    } catch (Exception e) {
-      e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return response != null ? response.toString() : null;
+
     }
-    return response != null ? response.toString() : null;
 
-  }
-
-  @Override
-  protected void onPostExecute(String result) {
-    //delegate.processFinish(result);
-    MyAsyncBus.getInstance().post(new DownloadDataTaskResultEvent(result));
-  }
+    @Override
+    protected void onPostExecute(String result) {
+        MyAsyncBus.getInstance().post(new DownloadDataTaskResultEvent(result));
+    }
 }
