@@ -255,7 +255,7 @@ public class GetCCGoodsActivity extends Activity {
                 String gstatus = json_data.getString("CCGoodStatus");
                 //goodsModel.cCGoodRackID = Integer.parseInt(String.valueOf((json_data.getString("CCGoodRackID"))=="null"?0:(json_data.getString("CCGoodRackID"))));
 
-                    if (gstatus.equals("1")) {
+                    if (gstatus.equals("1") || gstatus.equals("0")) {
                         goodsModel.cCGoodID = json_data.getInt("CCGoodID");
                         goodsModel.cCGoodQuantity = json_data.getInt("CCGoodQuantity");
                         goodsModel.buyerStreet = json_data.getString("BuyerStreet");
