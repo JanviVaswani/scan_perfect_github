@@ -5,9 +5,18 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.renturapp.scansist.CustomHttpClient;
 import com.renturapp.scansist.MyAsyncBus;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
+
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -37,26 +46,30 @@ public class DownloadRackDataTask extends AsyncTask<String, Void, String> {
 
     @Override
     protected String doInBackground(String... params) {
-
-        URL website;
         StringBuilder response = null;
-        try {
-            website = new URL(params[0]);
+        String inputLine;
 
-            HttpURLConnection connection = (HttpURLConnection) website.openConnection();
-            connection.setRequestProperty("charset", "utf-8");
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(
-                            connection.getInputStream()));
+        HttpClient httpClient = new CustomHttpClient();
+        HttpContext localContext = new BasicHttpContext();
+        HttpGet httpGet = new HttpGet(params[0]);
+        //HttpGet httpGet = new HttpGet("https://www.movesist.uk/data/racks/?CompanyID=42&getType=0");
+
+        try {
+            HttpResponse httpresponse = httpClient.execute(httpGet, localContext);
+            HttpEntity entity = httpresponse.getEntity();
+
+            InputStream is = entity.getContent();
+            BufferedReader in = new BufferedReader(new InputStreamReader(is));
             response = new StringBuilder();
-            String inputLine;
 
             while ((inputLine = in.readLine()) != null)
                 response.append(inputLine);
             in.close();
+
         } catch (Exception e) {
-            e.printStackTrace();
+            return e.getLocalizedMessage();
         }
+
         if (response != null) {
             return response.toString();
         } else {

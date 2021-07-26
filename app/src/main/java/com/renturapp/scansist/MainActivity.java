@@ -229,9 +229,9 @@ public class MainActivity extends Activity {
                 // getting attached intent data
                 Boolean previousPressed = intent.getBooleanExtra("onBackPressed", false);
                 if (!localData) {
-                    downloadrackdata = "https://www.movesist" + urlExtension + "/data/racks/?CompanyID=" + mCompanyID + "&getType=7&AndroidId=" + androidId;
+                    downloadrackdata = "https://www.movesist" + urlExtension + "/data/racks/?CompanyID=" + mCompanyID + "&getType=0&AndroidId=" + androidId;
                 } else {
-                    downloadrackdata = "http://192.168.0.5/data/racks/?CompanyID=" + mCompanyID + "&getType=7&AndroidId=" + androidId;
+                    downloadrackdata = "http://192.168.0.5/data/racks/?CompanyID=" + mCompanyID + "&getType=0&AndroidId=" + androidId;
                 }
                 /* Called when the activity is first created. */
                 if (!previousPressed && !hasScansToProcess) { // && !Utility.isActivityBackground()) {
@@ -290,7 +290,8 @@ public class MainActivity extends Activity {
              *
              *     End of ScanSist registration checking
              *
-             *
+             *String string = "004-034556";
+String[] parts = string.split("-");
              *                                              */
 
 
