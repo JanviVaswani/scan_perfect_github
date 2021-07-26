@@ -1,5 +1,7 @@
 package com.renturapp.scansist.AsynTask;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.AsyncTask;
 
 import com.renturapp.scansist.CustomHttpClient;
@@ -24,6 +26,22 @@ import java.io.InputStream;
  */
 
 public class DownloadPickListDataTask extends AsyncTask<String, Void, String> {
+    ProgressDialog progressDialog;
+    Context context;
+
+    public DownloadPickListDataTask(Context context) {
+        this.context = context;
+    }
+
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        progressDialog = new ProgressDialog(context);
+        progressDialog.show();
+        progressDialog.setCancelable(false);
+        progressDialog.setMessage("Loading...");
+    }
+
     @Override
     protected String doInBackground(String... params) {
         StringBuilder response = null;
@@ -59,5 +77,6 @@ public class DownloadPickListDataTask extends AsyncTask<String, Void, String> {
     @Override
     protected void onPostExecute(String result) {
         MyAsyncBus.getInstance().post(new DownloadPickListDataTaskResultEvent(result));
+        progressDialog.dismiss();
     }
 }

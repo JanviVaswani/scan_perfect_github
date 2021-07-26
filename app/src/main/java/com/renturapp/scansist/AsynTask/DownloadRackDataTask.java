@@ -1,5 +1,8 @@
 package com.renturapp.scansist.AsynTask;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.AsyncTask;
 
 import com.renturapp.scansist.MyAsyncBus;
@@ -15,6 +18,23 @@ import java.net.URL;
  */
 
 public class DownloadRackDataTask extends AsyncTask<String, Void, String> {
+    ProgressDialog progressDialog;
+    Context context;
+
+    public DownloadRackDataTask(Context context) {
+        this.context = context;
+    }
+
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+
+        progressDialog = new ProgressDialog(context);
+        progressDialog.show();
+        progressDialog.setCancelable(false);
+        progressDialog.setMessage("Loading...");
+    }
+
     @Override
     protected String doInBackground(String... params) {
 
@@ -47,5 +67,6 @@ public class DownloadRackDataTask extends AsyncTask<String, Void, String> {
     @Override
     protected void onPostExecute(String result) {
         MyAsyncBus.getInstance().post(new DownloadRackDataTaskResultEvent(result));
+        progressDialog.dismiss();
     }
 }

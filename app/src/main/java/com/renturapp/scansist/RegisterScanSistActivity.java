@@ -70,12 +70,14 @@ public class RegisterScanSistActivity extends Activity {
                 // If the event is a key-down event on the "enter" button
                 if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
                         (keyCode == KeyEvent.KEYCODE_ENTER)) {
-
                     if (depotNumber.getText().length() == 5) {
-                        Toast.makeText(context, " Registering ScanSist™ app to depot: " + depotNumber.getText(), Toast.LENGTH_SHORT).show();
-                        String dn = depotNumber.getText().toString();
                         if (u.isOnline()) {
+                            Toast.makeText(context, " Registering ScanSist™ app to depot: " + depotNumber.getText(), Toast.LENGTH_SHORT).show();
+                            String dn = depotNumber.getText().toString();
                             new DownloadRegisterDataTask().execute("https://www.movesist" + urlExtension + "/data/company/?DepotNumber=" + dn + "&getType=1");
+                        }
+                        else{
+                            Toast.makeText(context, "Internet is required", Toast.LENGTH_SHORT).show();
                         }
 
                         return true;

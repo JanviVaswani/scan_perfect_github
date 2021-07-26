@@ -273,12 +273,13 @@ public class MainActivity extends Activity {
                         }
                         u.setupRacks(racksJson);
                         setupRackSpinner(sharedPref);
+
                     } else {
                         //May have just finished so reload
                         //ToDo This occurs when we select the radio buttons so not needed
                         //ToDo but would occur if the radio button is already selected!
                         if (ta != null && ta.length() == 1) {
-                            new DownloadRackDataTask().execute(downloadrackdata);
+                            new DownloadRackDataTask(context).execute(downloadrackdata);
                         }
                     }
                 }
@@ -315,7 +316,7 @@ public class MainActivity extends Activity {
                 setRadioButton(status, sharedPref);
             }
 
-            setBtnNextEnable(sharedPref);
+            //setBtnNextEnable(sharedPref);
 
             int rackHub = hubStatus();
             if (rackHub != -1) {
@@ -340,33 +341,36 @@ public class MainActivity extends Activity {
         mDate = myCalendar.getTime();
         dateText.setText(sdf.format(mDate));
 
-        setBtnNextEnable(sharedPref);
+        //setBtnNextEnable(sharedPref);
     }
 
     public void onRadioButtonClicked(View v) {
         SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("ScanSist", MODE_PRIVATE);
         int rackHub = hubStatus();
 
-        setBtnNextEnable(sharedPref);
+        //setBtnNextEnable(sharedPref);
         checkRadioButtonClick(rackHub);
+        setBtnNextEnable(sharedPref);
     }
 
     private void checkRadioButtonClick(int rackHub) {
         if (rackHub == 0 || rackHub == 1) {
+            btnNext.setClickable(false);
             spnRack.setEnabled(true);
             spnRack.setClickable(true);
             spnRack.setVisibility(View.VISIBLE);
-            new DownloadRackDataTask().execute(downloadrackdata + "&RackType=" + rackHub);
+            new DownloadRackDataTask(context).execute(downloadrackdata + "&RackType=" + rackHub);
         } else if (rackHub == 2) {
             spnRack.setEnabled(false);
             spnRack.setClickable(false);
             spnRack.setVisibility(View.INVISIBLE);
         } else if (rackHub == 3) {
+            btnNext.setClickable(false);
             spnRack.setEnabled(true);
             spnRack.setClickable(true);
             spnRack.setVisibility(View.VISIBLE);
             String url = "https://www.movesist.uk/data/picklists?getType=5&CompanyID=" + u.RegCompanyId;
-            new DownloadPickListDataTask().execute(url);
+            new DownloadPickListDataTask(context).execute(url);
         }
     }
 
@@ -906,6 +910,7 @@ public class MainActivity extends Activity {
                     u.racks.add(add);
                 }
                 u.rackAdapter.notifyDataSetChanged();
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -915,6 +920,7 @@ public class MainActivity extends Activity {
         SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("ScanSist", MODE_PRIVATE);
         setupRackSpinner(sharedPref);
         u.saveRacks();
+        //setBtnNextEnable(sharedPref);
     }
 
     @Subscribe

@@ -729,7 +729,7 @@ public class ScanGoodsForRackLocationRadioOneActivity extends Activity implement
         previousScreen.putExtras(bundle);
         startActivity(previousScreen);
         finish();
-        super.onBackPressed();
+        //super.onBackPressed();
     }
 
     @Override
