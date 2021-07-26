@@ -87,6 +87,7 @@ public class ScanGoodsForRackLocationRadioOneActivity extends Activity implement
 
     List<ScanGoodsModel> insertGoods = new ArrayList<>();
     ScanGoodsModel scangoodsoutObj;
+    public String goodsIds="";
 
     private static final int DELAY = 3000; // 3 second
     ProgressDialog progressDialog;
@@ -113,6 +114,8 @@ public class ScanGoodsForRackLocationRadioOneActivity extends Activity implement
                     if(gooditem.cCGoodBarcode.equals(result.getText())){
                         barcodeexists=true;
                         goodsrackid=gooditem.cCGoodRackID;
+
+
                     }
                 }
 
@@ -151,6 +154,14 @@ public class ScanGoodsForRackLocationRadioOneActivity extends Activity implement
                     scangoodsoutObj.cCGoodID=Integer.parseInt(result.getText().substring(2,12));
                     scangoodsoutObj.cCGoodRackID=globalRackID1Variable;
                     scangoodsoutObj.cCGoodStatus="1";
+
+                    if(goodsIds.contains((scangoodsoutObj.cCGoodID).toString())){
+
+                    }
+                    else{
+                        goodsIds=(goodsIds!="") ? (goodsIds+scangoodsoutObj.cCGoodID+",") : (scangoodsoutObj.cCGoodID).toString()+",";
+                        scangoodsoutObj.CCGoodIDs=goodsIds;
+                    }
 
                     //Set Scan Count
                     if (result.getText().equals(lastText)) {
@@ -524,8 +535,8 @@ public class ScanGoodsForRackLocationRadioOneActivity extends Activity implement
         progressDialog.setContentView(R.layout.progess_dialog);
         progressDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 
-        //u.displayMessage(context, "ScanSist™ Upload Activated\nPlease Wait.");
-        new ScanGoodsInLocationTask(ScanGoodsForRackLocationRadioOneActivity.this).execute(insertGoods);
+        //new ScanGoodsInLocationTask(ScanGoodsForRackLocationRadioOneActivity.this).execute(insertGoods);
+        new ScanGoodsInLocationTask(ScanGoodsForRackLocationRadioOneActivity.this).execute(scangoodsoutObj);
     }
 
     @Subscribe

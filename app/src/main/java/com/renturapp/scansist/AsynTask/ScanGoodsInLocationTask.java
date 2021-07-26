@@ -29,7 +29,7 @@ import java.util.List;
  * This is used to download data from movesist.com
  */
 
-public class ScanGoodsInLocationTask extends AsyncTask<List<ScanGoodsModel>, Void, String> {
+public class ScanGoodsInLocationTask extends AsyncTask<ScanGoodsModel, Void, String> {
 
     Context context;
 
@@ -38,16 +38,17 @@ public class ScanGoodsInLocationTask extends AsyncTask<List<ScanGoodsModel>, Voi
     }
 
     @Override
-    protected String doInBackground(List<ScanGoodsModel>... params) {
+    protected String doInBackground(ScanGoodsModel... params) {
 
         String scangoodsuploadurl = "https://www.movesist.uk/data/scangoods/";
-        List<ScanGoodsModel> goodslist = params[0];
+        //List<ScanGoodsModel> goodslist = params[0];
+        ScanGoodsModel scangoodout=params[0];
         String result = "";
 
-        for (ScanGoodsModel scangoodout : goodslist) {
+        //for (ScanGoodsModel scangoodout : goodslist) {
             ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
             nameValuePairs.add(new BasicNameValuePair("CompanyID", (scangoodout.companyID).toString()));
-            nameValuePairs.add(new BasicNameValuePair("CCGoodID", (scangoodout.cCGoodID).toString()));
+            nameValuePairs.add(new BasicNameValuePair("CCGoodIDs", (scangoodout.CCGoodIDs)));
             nameValuePairs.add(new BasicNameValuePair("CCGoodStatus", (scangoodout.cCGoodStatus).toString()));
             nameValuePairs.add(new BasicNameValuePair("CCGoodRackID", (scangoodout.cCGoodRackID).toString()));
 
@@ -82,7 +83,7 @@ public class ScanGoodsInLocationTask extends AsyncTask<List<ScanGoodsModel>, Voi
                 Log.e("err", e.toString());
                 result = "Update Error";// + e.toString();
             }
-        }
+        //}
         return result;
     }
 

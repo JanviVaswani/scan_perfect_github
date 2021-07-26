@@ -42,4 +42,5 @@ public class ScanGoodsModel {
     Object putType;
     Integer uKCommCodeID;
     public String isGoodScanned = "N";
+    public String CCGoodIDs;
 }

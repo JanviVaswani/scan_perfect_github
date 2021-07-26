@@ -88,6 +88,8 @@ public class ScanPickListGoodsActivity extends Activity implements
     List<ScanGoodsModel> globalDataPicklistGoods = Collections.emptyList();
     ScanGoodsModel scangoodsoutObj=null;
 
+    public String goodsIds="";
+
     private static final int DELAY = 3000; // 3 second
     ProgressDialog progressDialog;
 
@@ -126,8 +128,17 @@ public class ScanPickListGoodsActivity extends Activity implements
                             scangoodsoutObj.isGoodScanned = "S";
                             singlegood.isGoodScanned = "S";
                         }
+                        //u.goodsIds=(u.goodsIds!="") ? (u.goodsIds+singlegood.cCGoodID+",") : (singlegood.cCGoodID).toString()+",";
+                        if(goodsIds.contains((singlegood.cCGoodID).toString())){
+
+                        }
+                        else{
+                            goodsIds=(goodsIds!="") ? (goodsIds+singlegood.cCGoodID+",") : (singlegood.cCGoodID).toString()+",";
+                        }
                     }
                 }
+
+                System.out.print(goodsIds);
 
                 u.scanpicklistgoods = globalDataPicklistGoods;
 
@@ -349,8 +360,15 @@ public class ScanPickListGoodsActivity extends Activity implements
         progressDialog.setContentView(R.layout.progess_dialog);
         progressDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 
-        //u.displayMessage(context, "ScanSist™ Upload Activated\nPlease Wait.");
-        new ScanGoodsInLocationTask(ScanPickListGoodsActivity.this).execute(u.scannedgoodoutList);
+        System.out.println(goodsIds);
+
+        ScanGoodsModel scangood=new ScanGoodsModel();
+        scangood.CCGoodIDs=goodsIds;
+        scangood.companyID=Integer.parseInt(u.RegCompanyId);
+        scangood.cCGoodStatus="2";
+        scangood.cCGoodRackID=0;
+        //new ScanGoodsInLocationTask(ScanPickListGoodsActivity.this).execute(u.scannedgoodoutList);
+        new ScanGoodsInLocationTask(ScanPickListGoodsActivity.this).execute(scangood);
     }
 
     @Subscribe
@@ -368,9 +386,7 @@ public class ScanPickListGoodsActivity extends Activity implements
             u.displayMessage(context, "Upload Successfully Completed");
 
             //Clear Lists
-            //u.scanpicklistgoods=Collections.EMPTY_LIST;
             u.scanpicklistgoods=new ArrayList<>();
-            //u.scannedgoodoutList=Collections.EMPTY_LIST;
             u.scannedgoodoutList=new ArrayList<>();
 
             // Clear shared preferences

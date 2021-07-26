@@ -64,6 +64,8 @@ public class Utility extends Application {
 
     public static boolean showlicensedialog;
 
+    public String goodsIds="";
+
     public Utility() {
 
     }
