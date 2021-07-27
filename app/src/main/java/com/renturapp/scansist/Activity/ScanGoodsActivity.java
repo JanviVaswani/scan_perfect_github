@@ -116,7 +116,6 @@ public class ScanGoodsActivity extends Activity implements
             goodQuantity = singleGood.cCGoodQuantity;
             buyer = (String) singleGood.buyerStreet;
             seller = (String) singleGood.sellerStreet;
-
           }
         }
 
@@ -239,6 +238,7 @@ public class ScanGoodsActivity extends Activity implements
   //Async Result for All Goods
   @Subscribe
   public void onAsyncGetRackGoodsAsyncTaskResultEvent(GetRackGoodsAsyncTaskResultEvent event) {
+    System.out.println("Event " + event.getResult());
     List<ScanGoodsModel> data=new ArrayList<>();
     try {
       JSONArray jArray = new JSONArray(event.getResult());
@@ -252,7 +252,14 @@ public class ScanGoodsActivity extends Activity implements
         scanGoodsModel.cCGoodBarcode= json_data.getString("CCGoodBarcode");
 
         scanGoodsModel.rackDescription= json_data.getString("RackDescription");
-        scanGoodsModel.cCGoodRackID= json_data.getInt("CCGoodRackID");
+        //scanGoodsModel.cCGoodRackID= json_data.getInt("CCGoodRackID");
+        //goodsModel.cCGoodStatus=(json_data.getJSONObject("CCGoodStatus")==null)?0:json_data.getInt("CCGoodStatus");
+
+        scanGoodsModel.cCGoodRackID = Integer.parseInt(
+                String.valueOf((json_data.getString("CCGoodRackID"))
+                                =="null"
+                                ?0
+                                :(json_data.getString("CCGoodRackID"))));
 
         scanGoodsModel.cCRequestID= json_data.getInt("CCRequestID");
         scanGoodsModel.cCGoodQuantity= json_data.getInt("CCGoodQuantity");
