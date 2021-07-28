@@ -329,7 +329,15 @@ public class ScanPickListGoodsActivity extends Activity implements
                 goodsModel.cCGoodBarcode=json_data.getString("CCGoodBarcode");
 
                 goodsModel.companyID=json_data.getInt("CompanyID");
-                goodsModel.cCGoodRackID=json_data.getInt("CCGoodRackID");
+
+                //goodsModel.cCGoodRackID=json_data.getInt("CCGoodRackID");
+
+                goodsModel.cCGoodRackID = Integer.parseInt(
+                        String.valueOf(
+                                (json_data.getString("CCGoodRackID"))=="null"
+                                        ?0
+                                        :(json_data.getString("CCGoodRackID"))));
+
                 goodsModel.cCGoodPickListID=json_data.getInt("CCGoodPickListID");
                 //goodsModel.cCGoodStatus=json_data.getInt("CCGoodStatus");
                 //goodsModel.cCGoodStatus=(json_data.getJSONObject("CCGoodStatus")==null)?0:json_data.getInt("CCGoodStatus");

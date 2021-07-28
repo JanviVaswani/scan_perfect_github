@@ -100,7 +100,13 @@ public class GetCCGoodsLocationsActivity extends Activity {
             goodBuyerStreet.setText("Consignee: " + goodBuyerStreetValue);
         }
 
-        rackGoodsDetails.setText(rackDescriptionValue + " Goods List");
+        if (rackDescriptionValue.equals("")){
+            rackGoodsDetails.setVisibility(View.GONE);
+        }
+        else{
+            rackGoodsDetails.setText(rackDescriptionValue + " Goods List");
+        }
+        //rackGoodsDetails.setText(rackDescriptionValue + " Goods List");
 
         finish.setOnClickListener(new View.OnClickListener() {
             @Override

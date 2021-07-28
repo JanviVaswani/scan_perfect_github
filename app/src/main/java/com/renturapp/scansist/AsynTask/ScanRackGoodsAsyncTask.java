@@ -29,7 +29,6 @@ public class ScanRackGoodsAsyncTask extends AsyncTask<String, String, String> {
     @Override
     protected String doInBackground(String... strings) {
         try {
-            //https://www.movesist.uk/data/ccgoods/?CompanyID=" + u.RegCompanyId + "&getType=6
             String jsonUrl =strings[0];
             String jsonGetString;
 

@@ -256,10 +256,10 @@ public class ScanGoodsActivity extends Activity implements
         //goodsModel.cCGoodStatus=(json_data.getJSONObject("CCGoodStatus")==null)?0:json_data.getInt("CCGoodStatus");
 
         scanGoodsModel.cCGoodRackID = Integer.parseInt(
-                String.valueOf((json_data.getString("CCGoodRackID"))
-                                =="null"
-                                ?0
-                                :(json_data.getString("CCGoodRackID"))));
+                String.valueOf(
+                (json_data.getString("CCGoodRackID"))=="null"
+                ?0
+                :(json_data.getString("CCGoodRackID"))));
 
         scanGoodsModel.cCRequestID= json_data.getInt("CCRequestID");
         scanGoodsModel.cCGoodQuantity= json_data.getInt("CCGoodQuantity");

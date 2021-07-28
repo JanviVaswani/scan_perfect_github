@@ -91,6 +91,7 @@ public class ScanGoodsForRackLocationRadioOneActivity extends Activity implement
 
     private static final int DELAY = 3000; // 3 second
     ProgressDialog progressDialog;
+    boolean updatescangoods=false;
 
     private BarcodeCallback callback = new BarcodeCallback() {
         private long lastTimestamp = 0;
@@ -107,6 +108,7 @@ public class ScanGoodsForRackLocationRadioOneActivity extends Activity implement
 
             boolean barcodeexists=false;
             int goodsrackid=0;
+            String goodstatus="";
 
             if(result.getText().startsWith("00") && result.getText().length()==15){
                 //To check if good is already scanned in any other location
@@ -114,23 +116,32 @@ public class ScanGoodsForRackLocationRadioOneActivity extends Activity implement
                     if(gooditem.cCGoodBarcode.equals(result.getText())){
                         barcodeexists=true;
                         goodsrackid=gooditem.cCGoodRackID;
-
-
+                        goodstatus= (String) gooditem.cCGoodStatus;
                     }
                 }
 
-                boolean updatescangoods=false;
+//                boolean updatescangoods=false;
 
                 if(barcodeexists){
+                    //if(globalRackID1Variable == goodsrackid || goodsrackid == 0)
                     if(globalRackID1Variable == goodsrackid)
                     {
                         updatescangoods=true;
+                        String globalResult = result.getText();
+                        updateApi(globalResult,updatescangoods);
+                    }
+                    else if(goodsrackid == 0 && goodstatus.equals("2")){
+                        checkBarcodeIdAndStatus(result.getText());
+                        System.out.println("updatescangoods 1" + updatescangoods);
                     }
                     else{
                         updatescangoods=false;
+                        String globalResult = result.getText();
+                        updateApi(globalResult,updatescangoods);
                     }
 
                     if (result.getText().equals(lastText)){
+                        //checkBarcodeIdAndStatus(result.getText());
                         beepManager.playBeepSoundAndVibrate();
                         Toast.makeText(ScanGoodsForRackLocationRadioOneActivity.this, "Barcode Already Exists", Toast.LENGTH_SHORT).show();
                     }
@@ -139,69 +150,74 @@ public class ScanGoodsForRackLocationRadioOneActivity extends Activity implement
                 }
                 else{
                     updatescangoods=true;
+                    String globalResult = result.getText();
+                    updateApi(globalResult,updatescangoods);
                 }
 
-                if(!updatescangoods){
-                    barcodeView.setStatusText(result.getText());
-                    Toast.makeText(ScanGoodsForRackLocationRadioOneActivity.this, "The Goods have been scanned into another location", Toast.LENGTH_SHORT).show();
-                    beepManager.playBeepSoundAndVibrate();
-                    lastTimestamp = System.currentTimeMillis();
-                }
-                else{
-                    //Set Goods Object to Scan In
-                    scangoodsoutObj=new ScanGoodsModel();
-                    scangoodsoutObj.companyID= Integer.parseInt(u.RegCompanyId);
-                    scangoodsoutObj.cCGoodID=Integer.parseInt(result.getText().substring(2,12));
-                    scangoodsoutObj.cCGoodRackID=globalRackID1Variable;
-                    scangoodsoutObj.cCGoodStatus="1";
+//                String globalResult = result.getText();
+//                updateApi(globalResult,updatescangoods);
 
-                    if(goodsIds.contains((scangoodsoutObj.cCGoodID).toString())){
-
-                    }
-                    else{
-                        goodsIds=(goodsIds!="") ? (goodsIds+scangoodsoutObj.cCGoodID+",") : (scangoodsoutObj.cCGoodID).toString()+",";
-                        scangoodsoutObj.CCGoodIDs=goodsIds;
-                    }
-
-                    //Set Scan Count
-                    if (result.getText().equals(lastText)) {
-                        beepManager.playBeepSoundAndVibrate();
-                        Toast.makeText(ScanGoodsForRackLocationRadioOneActivity.this, "Barcode Already Exists", Toast.LENGTH_SHORT).show();
-                        lastTimestamp = System.currentTimeMillis();
-                    }
-                    else {
-                        lastText = result.getText();
-                        setNextFinish(u.isOnline());
-                        SimpleDateFormat scan_sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.UK);
-                        String scanDateTime = scan_sdf.format(new Date());
-
-                        if (u.scanAdapter.getCount() == 0) {
-                            saveScan(scanDateTime);
-                            insertGoods.add(scangoodsoutObj);
-                        }
-                        else {
-                            //has it already been scaned!
-                            boolean alreadyScanned = false;
-                            for (Scan s : u.scans) {
-                                if (s.scanBarCode.equals(lastText)) {
-                                    alreadyScanned = true;
-                                    //barcodeView.setStatusText(result.getText());
-                                    break;
-                                }
-                            }
-
-                            if (alreadyScanned) {
-                                Toast.makeText(ScanGoodsForRackLocationRadioOneActivity.this, "Barcode Already Exists", Toast.LENGTH_SHORT).show();
-                                lastTimestamp = System.currentTimeMillis();
-                            }
-                            else {
-                                saveScan(scanDateTime);
-                                insertGoods.add(scangoodsoutObj);
-                            }
-                        }
-                        barcodeView.setStatusText(result.getText());
-                    }
-                }
+//                if(!updatescangoods){
+//                    barcodeView.setStatusText(result.getText());
+//                    Toast.makeText(ScanGoodsForRackLocationRadioOneActivity.this, "The Goods have been scanned into another location", Toast.LENGTH_SHORT).show();
+//                    beepManager.playBeepSoundAndVibrate();
+//                    lastTimestamp = System.currentTimeMillis();
+//                }
+//                else{
+//                    //Set Goods Object to Scan In
+//                    scangoodsoutObj=new ScanGoodsModel();
+//                    scangoodsoutObj.companyID= Integer.parseInt(u.RegCompanyId);
+//                    scangoodsoutObj.cCGoodID=Integer.parseInt(result.getText().substring(2,12));
+//                    scangoodsoutObj.cCGoodRackID=globalRackID1Variable;
+//                    scangoodsoutObj.cCGoodStatus="1";
+//
+//                    if(goodsIds.contains((scangoodsoutObj.cCGoodID).toString())){
+//
+//                    }
+//                    else{
+//                        goodsIds=(goodsIds!="") ? (goodsIds+scangoodsoutObj.cCGoodID+",") : (scangoodsoutObj.cCGoodID).toString()+",";
+//                        scangoodsoutObj.CCGoodIDs=goodsIds;
+//                    }
+//
+//                    //Set Scan Count
+//                    if (result.getText().equals(lastText)) {
+//                        beepManager.playBeepSoundAndVibrate();
+//                        Toast.makeText(ScanGoodsForRackLocationRadioOneActivity.this, "Barcode Already Exists", Toast.LENGTH_SHORT).show();
+//                        lastTimestamp = System.currentTimeMillis();
+//                    }
+//                    else {
+//                        lastText = result.getText();
+//                        setNextFinish(u.isOnline());
+//                        SimpleDateFormat scan_sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.UK);
+//                        String scanDateTime = scan_sdf.format(new Date());
+//
+//                        if (u.scanAdapter.getCount() == 0) {
+//                            saveScan(scanDateTime);
+//                            insertGoods.add(scangoodsoutObj);
+//                        }
+//                        else {
+//                            //has it already been scaned!
+//                            boolean alreadyScanned = false;
+//                            for (Scan s : u.scans) {
+//                                if (s.scanBarCode.equals(lastText)) {
+//                                    alreadyScanned = true;
+//                                    //barcodeView.setStatusText(result.getText());
+//                                    break;
+//                                }
+//                            }
+//
+//                            if (alreadyScanned) {
+//                                Toast.makeText(ScanGoodsForRackLocationRadioOneActivity.this, "Barcode Already Exists", Toast.LENGTH_SHORT).show();
+//                                lastTimestamp = System.currentTimeMillis();
+//                            }
+//                            else {
+//                                saveScan(scanDateTime);
+//                                insertGoods.add(scangoodsoutObj);
+//                            }
+//                        }
+//                        barcodeView.setStatusText(result.getText());
+//                    }
+//                }
             }
             else{
                 // Too soon after the last barcode - ignore.
@@ -213,6 +229,95 @@ public class ScanGoodsForRackLocationRadioOneActivity extends Activity implement
             scanCount++;
             updateScanInfo(scanCount);
             lastTimestamp = System.currentTimeMillis();
+        }
+
+        private void checkBarcodeIdAndStatus(String globalResult){
+            AlertDialog.Builder dialog=new AlertDialog.Builder(context);
+            dialog.setMessage("Already scanned out, Do you really want to scan goods into new rack location?");
+            //dialog.setTitle("Already Scanned Out!");
+            dialog.setPositiveButton("Yes",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog,int which) {
+                            updatescangoods=true;
+                            updateApi(globalResult,updatescangoods);
+                            System.out.println("updatescangoods 2" + updatescangoods);
+                            //dialog.dismiss();
+                        }
+                    });
+            dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+
+            AlertDialog alertDialog=dialog.create();
+            alertDialog.show();
+        }
+
+        private void updateApi(String result,boolean updateScan){
+            if(!updatescangoods){
+                barcodeView.setStatusText(result);
+                Toast.makeText(ScanGoodsForRackLocationRadioOneActivity.this, "The Goods have been scanned into another location", Toast.LENGTH_SHORT).show();
+                beepManager.playBeepSoundAndVibrate();
+                lastTimestamp = System.currentTimeMillis();
+            }
+            else{
+                //Set Goods Object to Scan In
+                scangoodsoutObj=new ScanGoodsModel();
+                scangoodsoutObj.companyID= Integer.parseInt(u.RegCompanyId);
+                scangoodsoutObj.cCGoodID=Integer.parseInt(result.substring(2,12));
+                scangoodsoutObj.cCGoodRackID=globalRackID1Variable;
+                scangoodsoutObj.cCGoodStatus="1";
+
+                if(goodsIds.contains((scangoodsoutObj.cCGoodID).toString())){
+
+                }
+                else{
+                    goodsIds=(goodsIds!="") ? (goodsIds+scangoodsoutObj.cCGoodID+",") : (scangoodsoutObj.cCGoodID).toString()+",";
+                    scangoodsoutObj.CCGoodIDs=goodsIds;
+                }
+
+                //Set Scan Count
+                if (result.equals(lastText)) {
+                    beepManager.playBeepSoundAndVibrate();
+                    Toast.makeText(ScanGoodsForRackLocationRadioOneActivity.this, "Barcode Already Exists", Toast.LENGTH_SHORT).show();
+                    lastTimestamp = System.currentTimeMillis();
+                }
+                else {
+                    lastText = result;
+                    setNextFinish(u.isOnline());
+                    SimpleDateFormat scan_sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.UK);
+                    String scanDateTime = scan_sdf.format(new Date());
+
+                    if (u.scanAdapter.getCount() == 0) {
+                        saveScan(scanDateTime);
+                        insertGoods.add(scangoodsoutObj);
+                    }
+                    else {
+                        //has it already been scaned!
+                        boolean alreadyScanned = false;
+                        for (Scan s : u.scans) {
+                            if (s.scanBarCode.equals(lastText)) {
+                                alreadyScanned = true;
+                                //barcodeView.setStatusText(result.getText());
+                                break;
+                            }
+                        }
+
+                        if (alreadyScanned) {
+                            Toast.makeText(ScanGoodsForRackLocationRadioOneActivity.this,
+                                    "Barcode Already Exists", Toast.LENGTH_SHORT).show();
+                            lastTimestamp = System.currentTimeMillis();
+                        }
+                        else {
+                            saveScan(scanDateTime);
+                            insertGoods.add(scangoodsoutObj);
+                        }
+                    }
+                    barcodeView.setStatusText(result);
+                }
+            }
         }
 
         @Override
@@ -327,6 +432,7 @@ public class ScanGoodsForRackLocationRadioOneActivity extends Activity implement
     //Async Result for Rack Goods
     @Subscribe
     public void onAsyncScanRackGoodsResultEvent(ScanRackGoodsAsyncTaskResultEvent event) {
+        System.out.println("event: " + event.getResult());
         //this method will be running on UI thread
         List<ScanGoodsModel> data=new ArrayList<>();
         try {
@@ -342,9 +448,13 @@ public class ScanGoodsForRackLocationRadioOneActivity extends Activity implement
                 scanGoodsModel.rackDescription= json_data.getString("RackDescription");
                 scanGoodsModel.cCGoodBarcode= json_data.getString("CCGoodBarcode");
                 scanGoodsModel.companyID= json_data.getInt("CompanyID");
-                scanGoodsModel.cCGoodRackID= json_data.getInt("CCGoodRackID");
                 scanGoodsModel.cCGoodStatus= json_data.getString("CCGoodStatus");
+                //scanGoodsModel.cCGoodRackID= json_data.getInt("CCGoodRackID");
 
+                scanGoodsModel.cCGoodRackID = Integer.parseInt(
+                        String.valueOf(
+                                (json_data.getString("CCGoodRackID"))=="null"
+                                        ? 0 : (json_data.getString("CCGoodRackID"))));
                 data.add(scanGoodsModel);
             }
             globalDataGoods = data;
